@@ -22,12 +22,10 @@ import {
   Page
 } from 'rsi-react-web-components';
 
-
-let svc;
-Service.lookup("OnlineBuildingPermitService", "obo").then(service => svc = service);
+const svc = Service.lookup("OnlineBuildingPermitService", "obo");
 
 import { EmailVerification } from 'rsi-react-filipizen-components'
-import BuildingPermitApplicant from "./components/BuildingPermitApplicant";
+import BuildingPermitApplicant from "./BuildingPermitApplicant";
 
 const steps = [
   {name: "email", title: "Email Verification"},
@@ -42,6 +40,7 @@ const BuildingPermitInitial = (props) => {
   const [appType, setAppType] = useState("new")
   const [appno, setAppno] = useState()
   const [activeStep, setActiveStep] = useState(1);
+  const [error, setError] = useState();
 
   const { partner, service, handler } = props
   const step = steps[activeStep];
@@ -62,9 +61,13 @@ const BuildingPermitInitial = (props) => {
       worktypes: [],
     }
 
-    svc.create(newApp).then(app => {
-      setAppno(app.objid)
-      moveNextStep();
+    svc.create(newApp, (err, app) => {
+      if (err) {
+        setError(err);
+      } else {
+        setAppno(app.objid)
+        moveNextStep();
+      }
     });
   }
 
@@ -145,7 +148,7 @@ const BuildingPermitInitial = (props) => {
 const pages = [
   { step: 0, component: null },
   { step: 1, name: 'applicant', caption: 'Applicant', component: BuildingPermitApplicant },
-  { step: 2, name: 'location', caption: 'Location', component: BuildingPermitApplicant },
+  // { step: 2, name: 'location', caption: 'Location', component: BuildingPermitApplicant },
   // { step: 3, name: 'rpu', caption: 'Real Property', component: 'BuildingPermitRPT' },
   // { step: 4, name: 'professional', caption: 'Professionals', component: 'BuildingPermitProfessionals' },
   // { step: 5, name: 'project', caption: 'Project Details', component: 'BuildingPermitProject' },
@@ -161,7 +164,7 @@ const BuildingPermitWebController = (props) => {
   const [mode, setMode] = useState("init");
   const [appType, setAppType] = useState("new");
   const [appno, setAppno] = useState(getUrlParameter(props.location, "appid"));
-  // const [appno, setAppno] = useState("137-07YTAY04");
+  const [app, setApp] = useState({});
   const [step, setStep] = useState(0)
 
   const { partner, service } = props
@@ -169,11 +172,9 @@ const BuildingPermitWebController = (props) => {
   const handleError = (err) => {
     setLoading(false);
     setError(err.toString());
-    console.log("ERROR", err)
   }
 
   const findCurrentApp = async () => {
-    const svc = await Service.lookup("OnlineBuildingPermitService", "obo");
     const app = await svc.findCurrentInfo({appid: appno});
     if(!app) {
       throw "Application no. does not exist";
@@ -188,6 +189,7 @@ const BuildingPermitWebController = (props) => {
     if (appno) {
       setLoading(true);
       findCurrentApp().then(app => {
+        setAppType(app);
         setAppno(app.objid);
         setStep(app.step);
         setMode("processing");
@@ -197,7 +199,6 @@ const BuildingPermitWebController = (props) => {
 
 
   const onCreateNewApp = (appno) => {
-    console.log("APPNO", appno)
     setAppno(appno);
     setStep(step + 1);
     setMode("processing");
@@ -208,16 +209,14 @@ const BuildingPermitWebController = (props) => {
       // setUrlParameter({appid: appno});
   }
 
-  const moveNextStep = (subStep) => {
-    //TODO
-    // const c = svc.moveNextStep({appid: appno});
-    // setStep(c.step);
-    setStep(prevStep => prevStep+1);
+  const moveNextStep = async (subStep) => {
+    const c = await svc.moveNextStep({appid: appno});
+    setStep(c.step);
   }
 
   const page = pages[step];
   const PageComponent = page.component;
-  const compProps = { appno, moveNextStep, svc, saveHandler };
+  const compProps = { appno, moveNextStep, appService: svc, saveHandler };
 
   if (mode === "new") {
     return (
@@ -240,6 +239,7 @@ const BuildingPermitWebController = (props) => {
           <BackLink caption="Cancel" action={props.history.goBack} />
           <Button caption="Next" action={() => setMode(appType)} />
         </ActionBar>
+
       </Panel>
 
       {step > 0 &&

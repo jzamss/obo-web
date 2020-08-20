@@ -1,1 +1,1 @@
-export { default as BuildingPermitWebController } from './buildingpermit'
+export { default as BuildingPermitWebController } from './buildingpermit/BuildingPermitWebController'
