@@ -1,6 +1,8 @@
 import React from "react";
-import { Subtitle, Panel, Text, Label } from "rsi-react-web-components";
+import { Subtitle2, Panel, Text, Label, Combobox } from "rsi-react-web-components";
 import { ResidenceAddress, IdEntry } from "rsi-react-filipizen-components";
+
+const entityTypes = ['INDIVIDUAL', 'CORPORATION', 'GOVERNMENT', 'OTHER']
 
 const OwnershipInfo = ({ owner, editable, orgcode, ...rest }) => {
   const title = rest.title || "Lot Owner Information";
@@ -9,10 +11,10 @@ const OwnershipInfo = ({ owner, editable, orgcode, ...rest }) => {
 
   return (
     <React.Fragment>
-      {showTitle && <Subtitle>{title}</Subtitle> }
+      {showTitle && <Subtitle2>{title}</Subtitle2> }
       <Panel>
         <Text caption="Profile No." name="owner.profileno" editable={editable} />
-        <Text caption="Type" name="owner.entitytype" editable={editable} />
+        <Combobox items={entityTypes} name="owner.entitytype" caption='Ownership Type' editable={editable}/>
         {owner.entitytype !== "INDIVIDUAL" && (
           <React.Fragment>
             <Text caption="Lot Owner Name" name="owner.name" editable={editable} />
@@ -24,7 +26,7 @@ const OwnershipInfo = ({ owner, editable, orgcode, ...rest }) => {
         <Text caption="First Name" name="owner.firstname" editable={editable} />
         <Text caption="Middle Name" name="owner.middlename" editable={editable} />
         <ResidenceAddress owner={owner} orgcode={orgcode} name="owner.address" editable={editable} />
-        {showIdEntry && <IdEntry name="id" editable={editable} /> }
+        {showIdEntry && <IdEntry name="owner.id" editable={editable} /> }
       </Panel>
     </React.Fragment>
   );

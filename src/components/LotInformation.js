@@ -1,12 +1,12 @@
 import React from "react";
-import { Subtitle, Text, Panel } from "rsi-react-web-components";
+import { Subtitle2, Text, Panel } from "rsi-react-web-components";
 
 const LotInformation = ({editable, ...rest} ) => {
   const title = rest.title || "Lot Information";
   const showTitle = rest.showTitle || true;
   return (
     <React.Fragment>
-      {showTitle && <Subtitle>{title}</Subtitle>}
+      {showTitle && <Subtitle2>{title}</Subtitle2>}
       <Panel row>
         <Text caption="PIN" name="pin" editable={editable} />
         <Text caption="Lot No." name="lotno" editable={editable} />

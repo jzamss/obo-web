@@ -14,7 +14,7 @@ import {
 import { BarangayList } from "rsi-react-filipizen-components";
 
 const BuildingPermitLocation = (props) => {
-  const { partner, appno, appService, moveNextStep } = props
+  const { partner, appno, appService, moveNextStep, stepCompleted } = props
   const [location, setLocation] = useState({ appno, appid: appno })
   const [error, setError] = useState()
 
@@ -23,6 +23,7 @@ const BuildingPermitLocation = (props) => {
       if (err) {
         setError(err)
       } else {
+        location.appid = appno;
         setLocation(location)
       }
     })
@@ -56,7 +57,7 @@ const BuildingPermitLocation = (props) => {
         <Text name='subdivision' caption='Subdivision' />
         <BarangayList orgcode={partner.id} name='barangay' caption='Barangay' />
       </FormPanel>
-      <ActionBar>
+      <ActionBar visibleWhen={!stepCompleted}>
         <Button caption='Next' action={updateLocation} />
       </ActionBar>
     </Panel>

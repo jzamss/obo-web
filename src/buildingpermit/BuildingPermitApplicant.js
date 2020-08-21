@@ -14,12 +14,12 @@ import {
   Subtitle2
 } from 'rsi-react-web-components'
 
-import { BarangayList, LocalAddress, NonLocalAddress, IdEntry } from 'rsi-react-filipizen-components';
+import { LocalAddress, NonLocalAddress, IdEntry } from 'rsi-react-filipizen-components';
 
 const entityTypes = ['INDIVIDUAL', 'CORPORATION', 'GOVERNMENT', 'OTHER']
 
 const BuildingPermitApplicant = (props) => {
-  const { appno, partner, appService, moveNextStep } = props
+  const { appno, partner, appService, moveNextStep, stepCompleted } = props
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -40,14 +40,15 @@ const BuildingPermitApplicant = (props) => {
     setLoading(true);
     setError(null);
     appService.getApplicant({appid: appno}, (err, applicant) => {
-      if (!err) {
-        if(!applicant) {
-          setApplicant(applicant);
-          setEditmode("create");
-        }
-        else {
-          setEditmode("read");
-        }
+      console.log("applicant", applicant)
+      if (err) {
+        setError(err)
+      } else if(!applicant) {
+        setEditmode("create");
+      }
+      else {
+        setApplicant(applicant);
+        setEditmode("read");
       };
       setLoading(false);
     })
@@ -102,7 +103,7 @@ const BuildingPermitApplicant = (props) => {
         <IdEntry name="id" editable={editmode !== "read"} />
       </FormPanel>
 
-      <ActionBar>
+      <ActionBar visibleWhen={!stepCompleted}>
         <Button caption='Edit' action={() => setEditmode('edit')} visibleWhen={editmode == 'read'} />
         <Button caption='Save' action={saveApplicant} visibleWhen={editmode !== 'read'} />
         <Button caption='Next' action={moveNextStep} visibleWhen={editmode === 'read'} />

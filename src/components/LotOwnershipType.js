@@ -1,5 +1,5 @@
 import React from "react";
-import { Subtitle, Radio, Item  } from "rsi-react-web-components";
+import { Subtitle2, Radio, Item  } from "rsi-react-web-components";
 
 const LotOwnershipType = ({ name, caption, ...rest }) => {
   const title = rest.title || "Lot Ownership";
@@ -7,7 +7,7 @@ const LotOwnershipType = ({ name, caption, ...rest }) => {
 
   return (
     <React.Fragment>
-      {showTitle && <Subtitle>{title}</Subtitle>}
+      {showTitle && <Subtitle2>{title}</Subtitle2>}
       <Radio name={name} {...rest}>
         <Item caption="Lot Owned" value="1" />
         <Item caption="Leased" value="0" />

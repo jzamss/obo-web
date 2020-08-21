@@ -288,7 +288,15 @@ const BuildingPermitWebController = (props) => {
 
   const page = pages[step];
   const PageComponent = page.component;
-  const compProps = { partner, appno, pages, moveNextStep, appService: svc, saveHandler };
+  const compProps = {
+    partner,
+    appno,
+    pages,
+    moveNextStep,
+    appService: svc,
+    saveHandler,
+    stepCompleted: step < app.step
+  };
 
   return (
     <Page>

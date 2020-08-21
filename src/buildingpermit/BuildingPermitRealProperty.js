@@ -20,7 +20,7 @@ import OwnershipInfo from "../components/OwnershipInfo";
 import LotInformation from "../components/LotInformation";
 
 const BuildingPermitRealProperty = (props) => {
-  const { partner, service, moveNextStep } = props;
+  const { partner, appService, moveNextStep } = props;
 
   const [error, setError] = useState();
   const [loading, setLoading] = useState(false);
@@ -28,11 +28,18 @@ const BuildingPermitRealProperty = (props) => {
   const [editmode, setEditmode] = useState("view")
   const [searchtype, setSearchtype] = useState("tdno");
 
-	const [app, setApp] = useState();
-	const [refno, setRefno] = useState(props.appno);
+	const [refno, setRefno] = useState();
   const [rpus, setRpus] = useState([]);
   const [selectedItem, setSelectedItem] = useState()
   const [property, setProperty] = useState({})
+
+
+  /* load rpus */
+  useEffect(() => {
+    if (mode === "view-rpus") {
+      reloadList();
+    }
+  }, [mode])
 
   const viewInitial = () => {
     setRefno();
@@ -43,7 +50,6 @@ const BuildingPermitRealProperty = (props) => {
   const findProperty = () => {
     const svc = Service.lookup( partner.id + ":OboOnlineService" );
     svc.findLocation( {refno }, (err, property) => {
-      console.log("property", property)
       if (err) {
         setError(err);
       } else {
@@ -57,14 +63,15 @@ const BuildingPermitRealProperty = (props) => {
         if( property.owner.address.municipality ) property.owner.address.citymunicipality = property.owner.address.municipality;
         property.owner.ctc = {};      //allocate ctc
         property.lotowned = 1;
-        setProperty(property || {});
+        property.appid = props.appno;
+        setProperty(property);
         setMode("view-lot");
       }
     });
   }
 
   const reloadList = () => {
-    service.getRpus({appid: app.appid}, (err, rpus) => {
+    appService.getRpus({appid: props.appno}, (err, rpus) => {
       if (err) {
         setError(err);
       } else {
@@ -74,8 +81,7 @@ const BuildingPermitRealProperty = (props) => {
   }
 
   const viewList = () => {
-    reloadList();
-    setMode('view-rpus');
+    setMode("view-rpus");
   }
 
   const editOwnerInfo = props => {
@@ -87,8 +93,25 @@ const BuildingPermitRealProperty = (props) => {
     }
   }
 
+  const saveRpu = () => {
+    if( !property.owner.id ) {
+      alert("Please provide proof of identity for owner/administrator of property");
+      return;
+    }
+    setError(null);
+    appService.saveRpu(property, (err, rpu) => {
+      if (err) {
+        setError(err)
+      } else {
+        reloadList();
+        setMode("view-rpus");
+      }
+    });
+  }
+
   return (
     <React.Fragment>
+      <Error msg={error} />
       <Panel visibleWhen={mode === "view-rpus"}>
         <Spacer />
         <Subtitle>Lot Information</Subtitle>
@@ -96,7 +119,7 @@ const BuildingPermitRealProperty = (props) => {
           <TableColumn caption="TD No." expr="tdno" />
           <TableColumn caption="Title No." expr="titleno" />
           <TableColumn caption="PIN" expr="pin" />
-          <TableColumn caption="Address" expr={item => `Lot: {item.lotno} Block: {item.blockno} Street:{item.street} Barangay: {item.barangay}`} />
+          <TableColumn caption="Address" expr={item => `Lot: ${item.lotno} Block: ${item.blockno} Street: ${item.street} Barangay: ${item.barangay}`} />
           <TableColumn caption="Class" expr="classcode" />
           <TableColumn caption="Area" expr="areasqm" />
           <TableColumn caption="Owner" expr="owner.name" />
@@ -156,11 +179,10 @@ const BuildingPermitRealProperty = (props) => {
           <OwnershipInfo name="owner" owner={property.owner} orgcode={partner.id} showIdEntry={true} />
         </FormPanel>
         <ActionBar>
-          <BackLink action="viewLot" caption="Back" />
-          <Button action="saveRpu" caption="Next" />
+          <BackLink action={() => setMode("view-lot")} caption="Back" />
+          <Button action={saveRpu} caption="Next" />
         </ActionBar>
       </Panel>
-      <p>{JSON.stringify(property, null, 2)}</p>
     </React.Fragment>
   );
 }
