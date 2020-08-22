@@ -26,6 +26,11 @@ import { EmailVerification } from 'rsi-react-filipizen-components'
 import BuildingPermitApplicant from "./BuildingPermitApplicant";
 import BuildingPermitLocation from "./BuildingPermitLocation";
 import BuildingPermitRealProperty from "./BuildingPermitRealProperty";
+import BuildingPermitProfessionals from "./BuildingPermitProfessionals";
+import BuildingPermitProject from "./BuildingPermitProject";
+import BuildingPermitAccessories from "./BuildingPermitAccessories";
+import BuildingPermitOtherPermits from "./BuildingPermitOtherPermits";
+import BuildingPermitConfirm from "./BuildingPermitOtherPermits";
 
 const steps = [
   {name: "email", caption: "Email Verification"},
@@ -156,13 +161,12 @@ const pages = [
   { step: 1, name: 'applicant', caption: 'Applicant', component: BuildingPermitApplicant },
   { step: 2, name: 'location', caption: 'Location', component: BuildingPermitLocation },
   { step: 3, name: 'rpu', caption: 'Real Property', component: BuildingPermitRealProperty },
-  { step: 4, name: 'professional', caption: 'Professional', component: BuildingPermitRealProperty },
-  // { step: 4, name: 'professional', caption: 'Professionals', component: 'BuildingPermitProfessionals' },
-  // { step: 5, name: 'project', caption: 'Project Details', component: 'BuildingPermitProject' },
-  // { step: 6, name: 'accessories', caption: 'Accessories', component: 'BuildingPermitAccessories' },
-  // { step: 7, name: 'ancillarylist', caption: 'Other Permits', component: 'BuildingPermitOtherPermits' },
-  // { step: 8, name: 'confirm', caption: 'Confirm', component: 'BuildingPermitConfirm' },
-  // { step: 9, name: 'finish', caption: 'Finish', component: 'BuildingPermitInitial' }
+  { step: 4, name: 'professional', caption: 'Professional', component: BuildingPermitProfessionals },
+  { step: 4, name: 'project', caption: 'Project Details', component: BuildingPermitProject },
+  { step: 6, name: 'accessories', caption: 'Accessories', component: BuildingPermitAccessories },
+  { step: 7, name: 'ancillarylist', caption: 'Other Permits', component: BuildingPermitOtherPermits },
+  { step: 8, name: 'confirm', caption: 'Confirm', component: BuildingPermitConfirm },
+  { step: 9, name: 'finish', caption: 'Finish', component: BuildingPermitInitial }
 ]
 
 const BuildingPermitWebController = (props) => {

@@ -1,152 +1,138 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import {
-    DataForm,Radio,Label,CheckBox,Text,Panel,ActionBar,Link,Button,RadioList,
-    Decimal,Integer
-} from "rsi-react"
+  ActionBar,
+  Button,
+  Checkbox,
+  Panel,
+  Radio,
+  Item,
+  Error,
+  Subtitle,
+  Subtitle2,
+  FormPanel,
+  Text,
+  Spacer,
+  Label,
+  BackLink,
+  Service
+} from "rsi-react-web-components";
 
-const SpecifyAppType = (props) => {
-  const { handler } = props;
-  const [appType, setAppType] = useType("NEW");
+const svc = Service.lookup("OboMiscListService", "obo");
 
-  <Panel>
-    <Label>Select Application Type</Label>
-    <Radio label="New Construction" name="apptype" value="NEW" />
-    <Radio label="Renovation" name="apptype" value="RENOVATION" />
-    <Radio label="Demolition" name="apptype" value="DEMOLITION" />
-  </Panel>
-  <ActionBar>
-    <Link  />
-    <Button label="Next" onclick={ handler(appType) } />
-  </ActionBar>
-}
+const BuildingPermitProject = ({
+  partner,
+  appno,
+  appService,
+  moveNextStep
+}) => {
+  const [error, setError] = useState();
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState("select-apptype");
+  const [occupancyMode, setOccupancyMode] = useState("group");
+  const [project, setProject] = useState({appid: appno, apptype: "NEW", worktypes: {}});
+  const [occupancyGroups, setOccupancyGroups] = useState([]);
 
-const SpecifyWorkType = (props) => {
-  const { handler } = props;
-  let worktypes = [];
-
-  const addType = (worktype, checked) => {
-    if(checked) {
-      worktypes.push( worktype );
-    }
-    else {
-      worktypes.remove( worktype );
-    }
-  }
-
-  <Panel>
-    <Label>Select Application Type</Label>
-    <CheckBox label="ADDITION" value="ADDITION" handler={addType}/>
-    <CheckBox label="ALTERATION" value="ALTERATION" handler={addType}/>
-    <CheckBox label="DEMOLITION" value="DEMOLITION" handler={addType}/>
-    <CheckBox label="ORIGINAL" value="ORIGINAL" handler={addType}/>
-    <CheckBox label="RENOVATION" value="RENOVATION" handler={addType}/>
-  </Panel>
-  <ActionBar>
-    <Link />
-    <Button label="Next" onclick={ handler(worktypes) } />
-  </ActionBar>
-}
-
-const SpecifyOccupancyType = (props) => {
-    const {handler, occupancytype} = props;
-    const [step, setStep ] = useType(0);
-    const svc = Service.lookup("obo/OboMiscListService");
-    let typeGroup;
-    let typeDivision;
-    let occupancytype;
-
-    if(occupancytype) {
-      typeGroup = occupancytype.group;
-      typeDivision = occupancytype.division;
-      setStep(2);
-    }
-    else {
-      setStep(0);
-    }
-
-    const moveBackStep = () => {
-      step = (step<0)? 0: step - 1;
-      setStep(step);
-    }
-
-    const moveNextStep = () => {
-      step = step + 1;
-      if( step > 2 ) {
-        handler( occupancytype );
+  useEffect(() => {
+    console.log("SVC", svc)
+    svc.getOccupancyTypeGroups((err, groups) => {
+      if (err) {
+        setError(err)
+      } else {
+        setOccupancyGroups(groups);
       }
-      else {
-        setStep(step);
+    })
+  }, [])
+
+  const submitAppType = () => {
+    setMode("select-worktype");
+  }
+
+  const validWorkTypes = () => {
+    //check at least one worktype is selected
+    let valid = false;
+    const worktypes = project.worktypes;
+    const idx = Object.keys(worktypes).forEach(key => {
+      if (worktypes[key] === true) {
+        valid = true;
       }
+    });
+    return valid;
+  }
+
+  const submitWorkType = () => {
+    if (validWorkTypes()) {
+      setMode("select-occupancytype");
+    } else {
+      setError("Please check at least one work type.")
     }
+  }
 
-    const getOccTypeGroups = () => {
-      return svc.getOccupancyTypeGroups();
-    }
+  return (
+    <Panel>
+      <Subtitle>Project Details</Subtitle>
+      <Spacer />
+      <Error msg={error} />
 
-    const getOccTypeGroups = () => {
-      return svc.getOccupancyTypeDivisions( {groupid: typeGroup } );
-    }
+      <FormPanel visibleWhen={mode === "select-apptype"} context={project} handler={setProject} >
+        <Subtitle2>Select Application Type</Subtitle2>
+        <Panel style={{marginLeft: 20}}>
+          <Radio name="apptype">
+            <Item caption="New Construction" value="NEW" />
+            <Item caption="Renovation" value="RENOVATION" />
+            <Item caption="Demolition" value="DEMOLITION" />
+          </Radio>
+        </Panel>
+        <ActionBar>
+          <Button caption="Next" action={submitAppType} />
+        </ActionBar>
+      </FormPanel>
 
-    const getOccTypes = () => {
-      return svc.getOccupancyTypes( {divisionid: typeDivision} );
-    }
+      <FormPanel visibleWhen={mode === "select-worktype"} context={project} handler={setProject} >
+        <Subtitle2>Select Work Type</Subtitle2>
+        <Panel style={styles.column}>
+          <Checkbox caption="ADDITION" name="worktypes.addition" value="ADDITION" />
+          <Checkbox caption="ALTERATION" name="worktypes.alteration" value="ALTERATION" />
+          <Checkbox caption="DEMOLITION" name="worktypes.demolition" value="DEMOLITION" />
+          <Checkbox caption="ORIGINAL" name="worktypes.original" value="ORIGINAL" />
+          <Checkbox caption="RENOVATION" name="worktypes.renovation" value="RENOVATION" />
+        </Panel>
+        <ActionBar>
+          <BackLink action={() => setMode("select-apptype")} />
+          <Button caption="Next" action={submitWorkType} />
+        </ActionBar>
+      </FormPanel>
 
-    <RadioList list={getOccTypes()} name="typeGroup" visible={step===0}/>
-    <RadioList list={getOccTypeGroups()} name="typeDivision" visible={step===1}/>
-    <RadioList list={ getOccTypes() } name="occupancytype" visible={step===2}/>
+      <Panel visibleWhen={mode === "select-occupancytype"}>
+        <FormPanel visibleWhen={occupancyMode === "group"} context={project} handler={setProject}>
+          <Subtitle2>Select Occupancy Group</Subtitle2>
+          <Radio name="occupancygroupid" list={occupancyGroups} Control={RadioItem}/>
+          <ActionBar>
+            <Button caption="Next" action={() => setOccupancyMode("group")} />
+          </ActionBar>
+        </FormPanel>
+      </Panel>
 
-    <ActionBar>
-        <Link label="Back" onclick=""/>
-        <Button label="Next" onclick={moveNextStep()}/>
-    </ActionBar>
+      <p>{JSON.stringify(project, null, 2)}</p>
+    </Panel>
+  )
 }
 
-const BuildingPermitProject = (props) => {
-  const {appService, moveNextStep} = props;
-
-  const [step, setStep] = useType(0);
-  let project = {numunits: 1};
-
-  const setAppType =(appType) => {
-    project.apptype = appType;
-    setStep(1);
-  }
-  const setWorkType =(worktypes) => {
-    project.worktypes = worktypes;
-    setStep(2);
-  }
-  const setOccupancyType =(occupancytype) => {
-    project.occupancytype = occupancytype;
-    setStep(3);
-  }
-
-  const updateProject = () => {
-     appService.updateProjectInfo( project );
-  }
-
-  <SpecifyAppType visible={ step === 0 } handler={setAppType}/>
-  <SpecifyWorkType visible={ step === 1 } handler={setWorkType}/>
-  <SpecifyOccupancyType visible={ step === 2 } handler={setOccupancyType}/>
-
-  <DataForm context={project} visible={ step > 2 }>
-    <Label>Project Details</Label>
-    <Text label='Project Title' name='title' required={true}/>
-    <Text label='Project Description' name='description' required={true}/>
-    <Spacer/>
-    <Integer label="No of Units" name="numunits" required/>
-    <Decimal label="Total Floor Area [sq.meter]" name="totalfloorarea" />
-    <Decimal label="Building Height [meter]" name="height" />
-    <Integer label="No of Storeys" name="numfloors" />
-
-    <Spacer/>
-    <Decimal label="Estimated Cost [Php]" name="projectcost" />
-    <Date label="Proposed Construction Date" name="dtproposedconstruction" />
-    <Date label="Expected Completion Date" name="dtexpectedcompletion" />
-  </DataForm>
-
-  <ActionBar>
-      <Link label="Back" onclick=""/>
-      <Button label="Next" onclick={updateProject()}/>
-  </ActionBar>
-
+const RadioItem = ({item}) => {
+  return (
+    <Panel style={{paddingBottom: 5}}>
+      <Subtitle2>{item.title}</Subtitle2>
+      <label>{item.description}</label>
+    </Panel>
+  )
 }
+
+const styles = {
+  column: {
+    display: "flex",
+    flexDirection: "column",
+    marginLeft: 20,
+  },
+}
+
+export default BuildingPermitProject

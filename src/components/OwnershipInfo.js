@@ -25,7 +25,7 @@ const OwnershipInfo = ({ owner, editable, orgcode, ...rest }) => {
         <Text caption="Last Name" name="owner.lastname" editable={editable} />
         <Text caption="First Name" name="owner.firstname" editable={editable} />
         <Text caption="Middle Name" name="owner.middlename" editable={editable} />
-        <ResidenceAddress owner={owner} orgcode={orgcode} name="owner.address" editable={editable} />
+        <ResidenceAddress person={owner} orgcode={orgcode} name="owner" editable={editable} />
         {showIdEntry && <IdEntry name="owner.id" editable={editable} /> }
       </Panel>
     </React.Fragment>

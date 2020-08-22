@@ -1,176 +1,216 @@
-const BuildingPermitAddProfessional = (props) => {
-  let professional = { entity: {address: {barangay:{}}, resident: 1} };
-  const professionList = [
-    "ARCHITECT",
-    "CIVIL/STRUCTURAL ENGINEER",
-    "PROFESSIONAL ELECTRICAL ENGINEER",
-    "REGISTERED ELECTRICAL ENGINEER",
-    "PROFESSIONAL MECHANICAL ENGINEER",
-    "REGISTERED MECHANICAL ENGINEER",
-    "SANITARY ENGINEER",
-    "MASTER PLUMBER",
-    "ELECTRONICS ENGINEER",
-    "GEODETIC ENGINEER",
-  ];
+import React, { useState, useEffect } from "react";
+import {
+  ActionBar,
+  Button,
+  Panel,
+  Error,
+  Subtitle,
+  MsgBox,
+  Table,
+  TableColumn,
+  DeleteButton,
+  EditButton,
+  FormPanel,
+  Text,
+  Label,
+  BackLink,
+  Spacer,
+} from "rsi-react-web-components";
 
-  const saveProfessional = () => {
-    appService.saveProfessional( professional );
-  }
+import { Person, IdEntry } from "rsi-react-filipizen-components";
 
+import ProfessionalList from "../components/ProfessionList";
+
+const initialProfessional = {
+  entity: {resident: 1},
 }
 
-const BuildingPermitProfessionals = (props) => {
-  const {appno, appService, moveNextStep } = props;
+const BuildingPermitProfessionals = ({
+  partner,
+  appno,
+  appService,
+  moveNextStep
+}) => {
 
-  const [mode, setMode] = useState("list");
-  const professionalList =  appService.getProfessionalList( {appid: appno } );
-  let selectedItem;
+  const [error, setError] = useState();
+  const [errors, setErrors] = useState({});
+  const [confirm, setConfirm] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState();
+  const [action, setAction] = useState();
+  const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState("initial");
+  const [professionals, setProfessionals] = useState([]);
+  const [professional, setProfessional] = useState(initialProfessional);
 
-  setMode("list");
+  const loadProfessionals = () => {
+    setLoading(true);
+    appService.getProfessionalList({appid: appno}, (err, professionals) => {
+      if (err) {
+        setError(errr)
+      } else {
+        setProfessionals(professionals);
+        setLoading(false);
+      }
+    });
+  }
+
+  useEffect(() => {
+    if (mode === "list") {
+      loadProfessionals();
+    }
+  }, [mode]);
+
+  const viewList = () => {
+    setMode("list");
+  }
+
+  const viewInitial = () => {
+    setMode("initial");
+  }
 
   const addNewEntry = () => {
-    setMode("edit");    
+    setProfessional(initialProfessional)
+    setMode("add-edit-entry");
   }
-  const editItem = () => {
-    setMode("edit");    
+
+  const editItem = (item) => {
+    console.log("EDITITEM", item)
+    appService.getProfessional({objid: item.objid}, (err, professional) => {
+      if (err) {
+        setError(err)
+      } else {
+        setProfessional(professional);
+        setMode("add-edit-entry");
+      }
+    });
   }
+
+  const confirmDelete = (item) => {
+    setProfessional(item);
+    setConfirm(true);
+    setAction("delete");
+    setConfirmMessage("Delete selected item?");
+  }
+
+  const cancelConfirm = () => {
+    setConfirm(false);
+  }
+
   const removeItem = () => {
-    appService.removeProfessional( selectedItem );
-    setMode("edit");
+    appService.removeProfessional(professional, (err, item) => {
+      if (err) {
+        setError(err)
+      } else {
+        loadProfessionals();
+      }
+      setConfirm(false);
+    });
   }
 
-  <BuildingPermitAddProfessional visible={mode === "edit"} />
-
-  <DataTable items={ professionalList } visible={mode==="list"}>
-    <Column label="PRC No" name="prc.idno" />
-    <Column label="Profession" name="profession" />
-    <Column label="Name" name="entity.name" />
-    <Column label="Address" name="entity.address.text" />
-    <Column>
-      <Link label="Edit" onClick={editItem()} />
-      <Link label="Remove" onClick={removeItem()} />
-    </Column>
-  </DataTable>
-
-  <Button label="Add New Entry" onClick={addNewEntry()} visible={mode==="list"}/>
-  <ActionBar>
-    <Button label="Next" onClick={moveNextStep()} visible={mode==="list"}/>
-  </ActionBar>
-
-}  
-
-  /*
-  this.onload = function() {
-    loadList();
-    self.mode = "view-list";
-    app.updateStepNavbar();
-  }
-
-  this.attachPRC = function() {
-    var h = function(v) {
-      self.prof.prc = v;
-      self._controller.refresh();
+  const findRefno = () => {
+    setErrors({});
+    if (!professional.idno) {
+      setErrors({idno: "Kindly specify a PRC No."});
+    } else {
+      //TODO: service
+      setMode("entry-not-found");
     }
-    var p = { onselect:h, idtype:'prc', idtitle:'Professional Regulation Commission', idcaption:'PRC No', show_validitydate: 'true' }
-    var pop = new PopupOpener( "id_entry", p , {width:'500', title:'Professional Regulation Commission'} ); 
-    return pop;
   }
 
-  this.attachPTR = function() {
-    var h = function(v) {
-      self.prof.ptr = v;
-      self._controller.refresh();
-    }
-    var p = { onselect: h, idtype:'ptr', idtitle:'Professional Tax Receipt', idcaption:'PTR No'}    
-    return new PopupOpener( "id_entry", p,  {width:'500', title:'Professional Tax Receipt'} );
+  const cancelEdit = () => {
+    setMode("list");
   }
 
+  const save = () => {
+    setLoading(true);
+    setError(null);
+    const prof = {...professional, appid: appno};
+    appService.saveProfessional(prof, (err, professional) => {
+      if (err) {
+        setError(err);
+      } else {
+        setProfessional(professional);
+        setMode("list")
+      }
+      setLoading(false);
+    });
+  }
 
-});
+  const actionHandlers = {
+    delete: removeItem,
+  }
 
-\$register( {id:'id_entry',  page:"${PAGE.parentPath}/id_entry", context: 'id_entry' } );
-</script>
+  const confirmHandler = actionHandlers[action];
 
-<style>
-  .caption-class { width: 200px;}
-  .subcaption-class { width : 100px; }
-</style>
+  return (
+    <Panel>
+      <Subtitle>List Licensed Professionals</Subtitle>
+      <Error msg={error} />
+      <MsgBox type="confirm" msg={confirmMessage}
+        open={confirm}
+        onAccept={confirmHandler}
+        onCancel={cancelConfirm}
+      />
 
+      <Panel visibleWhen={mode === "initial"}>
+        <FormPanel context={professional} handler={setProfessional}>
+          <p>
+          Specify technical person involved who will require signature
+          on the project (e.g. architect, civil engineer, etc):
+          </p>
+          <Text name="idno" caption="Search PRC No." error={errors.idno} fullWidth={false} variant="outlined"/>
+          <ActionBar>
+            <BackLink caption="Go to List" action={viewList} />
+            <Button caption="Next" action={findRefno} />
+          </ActionBar>
+        </FormPanel>
+      </Panel>
 
-<legend>List of Licensed Professionals</legend>
+      <Panel visibleWhen={mode === "entry-not-found"}>
+        <Label>
+          <p>Name with PRC No <b>#{professional.idno}</b> not found.</p>
+        </Label>
+        <ActionBar>
+          <BackLink caption="Cancel" action={viewInitial} />
+          <Button caption="Add New" action={addNewEntry} />
+        </ActionBar>
+      </Panel>
 
-<div r:context="professional" r:visibleWhen="#{mode=='initial'}">
-	<p style="padding-bottom:10px">Specify technical persons involved who will require signature on the project (e.g. architect, civil engineer, etc):</p> 
-  <div class="form">
-    @wx:text(caption:'Search PRC No', context:'professional', name:'idno', required: true, captionClass: '+w150')
-  </div>
-  @wx:button( caption:'Next', context:'professional', name:'findRefno')
-</div>
+      <Panel visibleWhen={mode === "list"}>
+        <Table items={professionals} size="small" showPagination={false} >
+          <TableColumn caption="PRC No." expr="prc.idno" />
+          <TableColumn caption="Profession" expr="profession" />
+          <TableColumn caption="Name" expr="entity.name" />
+          <TableColumn caption="Address" expr="entity.address.text" />
+          <TableColumn>
+            <Panel row>
+              <EditButton action={editItem} size="small" />
+              <DeleteButton action={confirmDelete} size="small" />
+            </Panel>
+          </TableColumn>
+        </Table>
+        <ActionBar>
+          <Button caption="Add New Entry" action={addNewEntry} />
+          <Button caption="Next" action={moveNextStep} />
+        </ActionBar>
+      </Panel>
 
-<div r:context="professional" r:visibleWhen="#{mode=='entry-not-found'}">
-  <div  style="padding-bottom:10px">
-    <label r:context="professional"> 
-      <p>Name with PRC No <b>#{idno}</b> not found. Add New Entry?</p> 
-    </label>
-  </div>
-  @wx:button( caption:'Cancel', context:'professional', name:'viewInitial')
-  @wx:button( caption:'Add New', context:'professional', name:'addNew')
-</div>
+      <Panel visibleWhen={mode === "add-edit-entry"}>
+        <FormPanel context={professional} handler={setProfessional}>
+          <p>Please fill in the necessary data below. Text marked with * are required fields. </p>
+          <ProfessionalList name="profession" required={true} />
+          <Person name="entity" person={professional.entity} showAddress={true} orgcode={partner.id} />
+          <Spacer />
+          <IdEntry caption="Professional Regulation Commission [PRC]" name="prc" showIdTypes={false} />
+          <IdEntry caption="Professional Tax Receipt [PTR]" name="ptr" showIdTypes={false} />
+          <ActionBar>
+            <BackLink caption="Cancel" action={cancelEdit} />
+            <Button caption="Save and Add to List" action={save} />
+          </ActionBar>
+        </FormPanel>
+      </Panel>
+    </Panel>
+  )
+}
 
-<div  r:context="professional" r:visibleWhen="#{mode == 'view-list'}">
-  <table r:context="professional" r:items="professionalList" r:varName="item" r:name="selectedItem"  style="width:100%" class="customtable">
-    <thead>
-      <tr>
-        <td class="lp-prcno">PRC No</td>
-        <td class="lp-profession">Profession</td>        
-        <td class="lp-name">Name</td>
-        <td class="lp-address">Address</td>
-        <td class="lp-action">Actions</td>        
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="lp-prcno">#{item.prc.idno}</td>
-        <td class="lp-profession">#{item.profession}</td>        
-        <td class="lp-name">#{item.entity.name}</td>
-        <td class="lp-address">#{item.entity.address.text}</td>
-        <td class="lp-action">
-          <a href="#" r:context="professional" r:name="editItem" class="link-edit-action">Edit</a> 
-          &nbsp;&nbsp;
-          <a href="#" r:context="professional" r:name="removeItem" class="link-edit-action">Remove</a> 
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <br>
-  @wx:button( caption:'Add New Entry', context:'professional', name:'addNew')
-  @wx:button( caption:'Next', context:'professional', name:'finish')
-</div>
-
-
-<div r:context="professional" r:visibleWhen="#{mode=='edit-entry'}" style="display:none">
-  <p>Please fill in the necessary data below. Text marked with * are required fields. </p>
-  <div class="form">
-    @wx:combo(caption:'Primary Profession', context:'professional', name:'prof.profession', required: true, inputClass:'+w250', 
-      attrs:[items:'professions', emptyText:'-', allowNull: true ])
-    @wx:text(caption:'Last Name', context:'professional', name:'prof.entity.lastname', required: true, hint:'Last Name')
-    @wx:text(caption:'First Name', context:'professional', name:'prof.entity.firstname', required: true, hint:'First Name' )
-    @wx:text(caption:'Middle Name', context:'professional', name:'prof.entity.middlename', required: true, hint:'Middle Name')
-
-    @wx:radiolist( caption:'Resident', context:'professional', name:'prof.entity.resident', required:true, items: [ [key:'1', value:'Resident'], [key:'0', value:'Non-resident' ] ] )
-    @wx:address_local( caption: 'Address', context:'professional', name:'prof.entity.address', depends: 'prof.entity.resident', visibleWhen: '#{ prof.entity.resident == \'1\' }', required:true )
-    @wx:address_nonlocal( caption: 'Address', context:'professional', name:'prof.entity.address', depends: 'prof.entity.resident', visibleWhen: '#{ prof.entity.resident == \'0\' }', required:true )
-
-    @wx:email(context:'professional', name:'prof.entity.email')
-    @wx:mobile(context:'professional', name:'prof.entity.mobileno' )
-
-    <br>
-    @wx:idproof( context:'professional', name:'prof.prc', action:'attachPRC', caption:'Professional Regulation Commission [PRC]' )
-    <br>
-    @wx:idproof( context:'professional', name:'prof.ptr', action:'attachPTR', caption: 'Professional Tax Receipt [PTR]' )
-
-  </div>  
-  @wx:button( caption:'Cancel', context:'professional', name:'cancelEdit', attrs:[immediate:true])
-  @wx:button( caption:'Save and Add To List', context:'professional', name:'save')
-</div>
-*/
+export default BuildingPermitProfessionals;

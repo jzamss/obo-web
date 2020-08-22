@@ -11,6 +11,7 @@ import {
   Button,
   ActionBar,
   Panel,
+  Subtitle,
   Subtitle2
 } from 'rsi-react-web-components'
 
@@ -73,6 +74,7 @@ const BuildingPermitApplicant = (props) => {
 
   return (
     <Panel>
+      <Subtitle>Building Applicant Details</Subtitle>
       <Spacer />
       <Error msg={error} />
       <FormPanel context={applicant} handler={setApplicant} >

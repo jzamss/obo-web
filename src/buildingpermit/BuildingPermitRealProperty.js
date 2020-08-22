@@ -12,7 +12,10 @@ import {
   TableColumn,
   Service,
   Label,
-  FormPanel
+  FormPanel,
+  DeleteButton,
+  EditButton,
+  ViewButton
 } from 'rsi-react-web-components';
 
 import LotOwnershipType from "../components/LotOwnershipType";
@@ -110,11 +113,12 @@ const BuildingPermitRealProperty = (props) => {
   }
 
   return (
-    <React.Fragment>
+    <Panel>
+      <Subtitle>Lot Information</Subtitle>
       <Error msg={error} />
+
       <Panel visibleWhen={mode === "view-rpus"}>
         <Spacer />
-        <Subtitle>Lot Information</Subtitle>
         <Table items={rpus} size="small" showPagination={false} >
           <TableColumn caption="TD No." expr="tdno" />
           <TableColumn caption="Title No." expr="titleno" />
@@ -124,9 +128,11 @@ const BuildingPermitRealProperty = (props) => {
           <TableColumn caption="Area" expr="areasqm" />
           <TableColumn caption="Owner" expr="owner.name" />
           <TableColumn>
-            <Button caption="View" action={()=>{}} />
-            <Button caption="Edit" action={()=>{}} />
-            <Button caption="Remove" action={()=>{}} />
+            <Panel row>
+              <ViewButton action={()=>{}} size="small" />
+              <EditButton action={()=>{}} size="small" />
+              <DeleteButton action={()=>{}} size="small" />
+            </Panel>
           </TableColumn>
         </Table>
         <ActionBar>
@@ -183,7 +189,7 @@ const BuildingPermitRealProperty = (props) => {
           <Button action={saveRpu} caption="Next" />
         </ActionBar>
       </Panel>
-    </React.Fragment>
+    </Panel>
   );
 }
 
