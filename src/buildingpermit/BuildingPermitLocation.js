@@ -50,8 +50,10 @@ const BuildingPermitLocation = (props) => {
           <Text name='lotno' caption='Lot No.' />
           <Text name='blockno' caption='Block No.' />
         </Panel>
-        <Text name='unitno' caption='Unit No.' />
-        <Text name='bldgno' caption='Building No.' />
+        <Panel row>
+          <Text name='unitno' caption='Unit No.' />
+          <Text name='bldgno' caption='Building No.' />
+        </Panel>
         <Text name='bldgname' caption='Building Name' />
         <Text name='street' caption='Street' />
         <Text name='subdivision' caption='Subdivision' />

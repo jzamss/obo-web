@@ -38,7 +38,7 @@ const BuildingPermitProfessionals = ({
   const [confirmMessage, setConfirmMessage] = useState();
   const [action, setAction] = useState();
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState("initial");
+  const [mode, setMode] = useState("list");
   const [professionals, setProfessionals] = useState([]);
   const [professional, setProfessional] = useState(initialProfessional);
 
