@@ -98,7 +98,7 @@ const BuildingPermitProject = ({
         setError(err);
       } else {
         setProject(project);
-        setMode("project-detail");
+        setMode("select-apptype");
       }
     });
   }, [])
@@ -155,6 +155,10 @@ const BuildingPermitProject = ({
     if (!project.occupancytype.objid) {
       setError("Kindly select an occupancy type.")
     } else {
+      let occupancytype = {appid: appno, ...project.occupancytype};
+      const occupancyTypeInfo = occupancyTypes.find(o => o.objid === occupancytype.objid)
+      occupancytype = {...occupancytype, ...occupancyTypeInfo};
+      setProject({...project, occupancytypeid: occupancytype.objid, occupancytype});
       setMode("project-detail");
     }
   }
@@ -162,7 +166,8 @@ const BuildingPermitProject = ({
   const updateProject = () => {
     setLoading(true);
     setError(null);
-    appService.updateProjectInfo(project, (err, proj) => {
+    const updatedProject = {appid: appno, ...project};
+    appService.updateProjectInfo(updatedProject, (err, proj) => {
       if (err) {
         setError(err);
       } else {
@@ -170,6 +175,11 @@ const BuildingPermitProject = ({
       }
       setLoading(false);
     });
+  }
+
+  const backToOccupancy = () => {
+    setMode("select-occupancytype");
+    setOccupancyMode("type");
   }
 
   return (
@@ -212,6 +222,7 @@ const BuildingPermitProject = ({
           <Subtitle2>Select Occupancy Group</Subtitle2>
           <Radio name="occupancytype.group.objid" list={occupancyGroups} Control={RadioItem}/>
           <ActionBar>
+            <BackLink action={() => setMode("select-worktype")} />
             <Button caption="Next" action={submitOccupancyGroup} />
           </ActionBar>
         </FormPanel>
@@ -239,18 +250,19 @@ const BuildingPermitProject = ({
         <Text caption="Project Title" name="title" required={true} readOnly={stepCompleted} />
         <Text caption="Project Description" name="description" required={true} readOnly={stepCompleted} />
         <Spacer/>
+        <Text caption="Occupancy Type" name="occupancytype.title" required={true} readOnly={stepCompleted} />
         <Integer caption="No of Units" name="numunits" required={true} readOnly={stepCompleted} />
         <Decimal caption="Total Floor Area [sq.meter]" name="totalfloorarea" required={true} readOnly={stepCompleted} />
         <Decimal caption="Building Height [meter]" name="height" required={true} readOnly={stepCompleted} />
         <Integer caption="No of Storeys" name="numfloors" required={true} readOnly={stepCompleted} />
         <Spacer/>
-        <Decimal caption="Estimated Cost [Php]" name="projectcost" required={true} readOnly={stepCompleted} />
+        <Decimal caption="Estimated Cost [Php]" name="projectcost" required={true} readOnly={stepCompleted} decimalScale={2}/>
         <Panel row>
           <Date caption="Proposed Construction Date" name="dtproposedconstruction" readOnly={stepCompleted} />
           <Date caption="Expected Completion Date" name="dtexpectedcompletion" readOnly={stepCompleted} />
         </Panel>
         <ActionBar visibleWhen={!stepCompleted}>
-          <BackLink action={() => setOccupancyMode("type")} />
+          <BackLink action={backToOccupancy} />
           <Button caption="Next" action={updateProject} />
         </ActionBar>
       </FormPanel>

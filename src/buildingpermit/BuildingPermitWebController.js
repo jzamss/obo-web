@@ -66,7 +66,7 @@ const BuildingPermitInitial = (props) => {
 
   const saveApp = () => {
     const newApp = {
-      orgcode: partner.id,
+      orgcode: partner.orgcode,
       contact,
       apptype: appType,
       worktypes: [],
@@ -93,9 +93,11 @@ const BuildingPermitInitial = (props) => {
 
   return (
     <Page>
+    {/*
       <Panel target="left" style={styles.stepperContainer} >
         <Stepper steps={steps} activeStep={activeStep} />
       </Panel>
+    */}
       <Card>
         <Title>{service.title}</Title>
 
@@ -193,13 +195,13 @@ const BuildingPermitWebController = (props) => {
       } else {
         if(!app) {
           setError("Application no. does not exist");
-        }
-        if( partner.orgcode != app.orgcode ) {
+        } else if( partner.orgcode != app.orgcode ) {
           setError("The application number provided is not for this local government");
+        } else {
+          setApp(app);
+          setStep(app.step);
+          setMode("processing");
         }
-        setApp(app);
-        setStep(app.step);
-        setMode("processing");
       }
       setLoading(false);
     });
@@ -234,13 +236,14 @@ const BuildingPermitWebController = (props) => {
     console.log("SAVE HANDLER");
   }
 
-  const moveNextStep = (subStep) => {
-    svc.moveNextStep({appid: appno}, (err, app) => {
-      console.log("app", app);
+  const moveNextStep = () => {
+    svc.moveNextStep({appid: appno}, (err, updatedApp) => {
+      console.log("updatedApp", updatedApp);
       if (err) {
         setError(err);
       } else {
-        setStep(app.step);
+        setStep(updatedApp.step);
+        setApp({...app, step: updatedApp.step});
       }
     });
   }
