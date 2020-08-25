@@ -1,20 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { Combobox } from "rsi-react-web-components";
 
-const professions = [
-  "ARCHITECT",
-  "CIVIL/STRUCTURAL ENGINEER",
-  "PROFESSIONAL ELECTRICAL ENGINEER",
-  "REGISTERED ELECTRICAL ENGINEER",
-  "PROFESSIONAL MECHANICAL ENGINEER",
-  "REGISTERED MECHANICAL ENGINEER",
-  "SANITARY ENGINEER",
-  "MASTER PLUMBER",
-  "ELECTRONICS ENGINEER",
-  "GEODETIC ENGINEER",
-];
-
-const ProfessionList = ({name="profession", caption="Profession", ...rest}) => {
+const ProfessionList = ({
+  name="profession",
+  caption="Profession",
+  professions,
+  ...rest
+}) => {
     return (
     <Combobox
       name={name}
