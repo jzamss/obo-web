@@ -7,6 +7,7 @@ import {
   BackLink,
   Spacer,
   Subtitle,
+  Error
 } from 'rsi-react-web-components';
 
 
@@ -14,7 +15,8 @@ const Confirmation = ({
   partner,
   title="New Permit Application",
   onCancel,
-  onContinue
+  onContinue,
+  error
 }) => {
   const [agreeDisclaimer, setAgreeDisclaimer] = useState(false);
 
@@ -22,6 +24,7 @@ const Confirmation = ({
     <React.Fragment>
       <Subtitle>{title}</Subtitle>
       <Spacer height={30} />
+      <Error msg={error} />
       <Subtitle2>Please read thoroughly before proceeding</Subtitle2>
       <p style={{opacity: 0.8}}>
       This online service will require personal information from the applicant,

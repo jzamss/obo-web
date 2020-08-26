@@ -54,7 +54,6 @@ const NewProfessional = ({
           </ActionBar>
         </FormPanel>
       </Panel>
-      <p>{JSON.stringify(professional, null, 2)}</p>
     </Panel>
   )
 }

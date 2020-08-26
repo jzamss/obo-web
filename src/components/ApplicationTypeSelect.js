@@ -14,17 +14,26 @@ import {
 const ApplicationTypeSelect = ({
   onCancel,
   onSubmit,
+  error
 }) => {
-  const [error, setError] = useState();
   const [errorText, setErrorText] = useState({});
   const [appType, setAppType]= useState("new");
   const [appno, setAppno] = useState();
+
+  const submitAppType = () => {
+    if (appType !== "new") {
+      if (!appno) {
+        setErrorText({appno: "Tracking No. is required."});
+        return
+      }
+    }
+    onSubmit({appType, appno});
+  }
 
   return (
     <React.Fragment>
       <Subtitle>Select an action</Subtitle>
       <Spacer height={30} />
-      <Error msg={error} />
       <Radio value={appType} onChange={setAppType} >
         <Item caption="Create New Application" value="new" />
         <Item caption="Resume Pending Application" value="resume" />
@@ -37,13 +46,13 @@ const ApplicationTypeSelect = ({
         fullWidth={false}
         required
         style={{marginLeft: 40}}
-        error={errorText.appno}
-        helperText={errorText.appno}
+        error={errorText.appno || error}
+        helperText={errorText.appno || error}
         size="small"
         />
       <ActionBar>
         <BackLink caption="Cancel" action={onCancel} />
-        <Button caption="Next" action={() => onSubmit({appType, appno})} />
+        <Button caption="Next" action={submitAppType} />
       </ActionBar>
     </React.Fragment>
   )

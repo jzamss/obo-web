@@ -29,7 +29,7 @@ const Initial = ({
   const [mode, setMode] = useState("init");
   const [error, setError] = useState();
   const [loading, setLoading] = useState(false);
-  const [info, setInfo] = useState({prcno: '11', email: "g@gmail.com", mobileno:"09999999999"});
+  const [info, setInfo] = useState({});
   const [key, setKey] = useState();
   const [professionList, setProfessionList] = useState([]);
 
@@ -86,7 +86,6 @@ const Initial = ({
           width={200}
         />
       </Panel>
-      <p>{JSON.stringify(info, null, 2)}</p>
       <p>{key}</p>
     </React.Fragment>
   );

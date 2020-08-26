@@ -5,11 +5,13 @@ import {
   Stepper,
   Page,
   Panel,
-  Title
+  Title,
+  Card
 } from 'rsi-react-web-components';
 
 import OccupancyPermitInitial from "./OccupancyPermitInitial";
-import PlannedActual from "./PlannedActual";
+import OccupancyType from "./OccupancyType";
+import PlannedVsActual from "./PlannedVsActual";
 import ActualCost from "./ActualCost";
 import OtherCost from "./OtherCost";
 import Professionals from "./Professionals";
@@ -19,22 +21,22 @@ const svc = Service.lookup("OnlineOccupancyPermitService", "obo");
 
 const pages = [
   { step: 0, component: null },
-  { step: 1, name: 'plannedactual', caption: 'Planned vs Actual', component: PlannedActual },
-  { step: 2, name: 'actualcost', caption: 'Actual Cost', component: ActualCost },
-  { step: 3, name: 'othercost', caption: 'Other Cost', component: OtherCost },
-  { step: 4, name: 'professionals', caption: 'Professionals', component: Professionals },
-  { step: 5, name: 'confirm', caption: 'Confirm', component: Confirm },
+  { step: 1, name: 'apptype', caption: 'Application Type', component: OccupancyType },
+  { step: 2, name: 'plannedactual', caption: 'Planned vs Actual', component: PlannedVsActual },
+  { step: 3, name: 'actualcost', caption: 'Actual Cost', component: ActualCost },
+  { step: 4, name: 'othercost', caption: 'Other Cost', component: OtherCost },
+  { step: 5, name: 'professionals', caption: 'Professionals', component: Professionals },
+  { step: 6, name: 'confirm', caption: 'Confirm', component: Confirm },
 ]
 
 const OccupancyPermitWebController = (props) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [mode, setMode] = useState("new");
-  const [appType, setAppType] = useState("new");
+  const [mode, setMode] = useState("init");
+  const [appType, setAppType] = useState("full");
   const [appno, setAppno] = useState(getUrlParameter(props.location, "appid"));
   const [app, setApp] = useState({});
   const [step, setStep] = useState(0)
-  const [errorText, setErrorText] = useState({});
 
   const { partner, service } = props
 
@@ -67,17 +69,11 @@ const OccupancyPermitWebController = (props) => {
     findCurrentApp();
   }, [appno]);
 
-  const onCreateNewApp = (appno) => {
-    setAppno(appno);
-    setStep(step + 1);
-    setMode("processing");
-  }
-
-  const processAppType = ({appType, appno}) => {
-    if (appType === "new") {
-      setMode(appType);
-    } else {
+  const onCompleteInitial = ({appType, appno}) => {
+    if (appType !== "new") {
       setAppno(appno);
+      setStep(step + 1);
+      setMode("processing");
     }
   }
 
@@ -92,17 +88,18 @@ const OccupancyPermitWebController = (props) => {
     });
   }
 
+  const onSubmitOccupancyType = (appType) => {
+    setAppType(appType);
+    moveNextStep();
+  }
+
   const handleStep = (step) => {
     setStep(step);
   }
 
   if (mode === "init") {
-    return <ApplicationTypeSelect service={service} onSubmit={processAppType} />
-  }
-
-  if (mode === "new") {
     return (
-      <OccupancyPermitInitial {...props} handler={onCreateNewApp} onCancel={()=>{ setMode("init")}}/>
+      <OccupancyPermitInitial {...props} appService={svc} onComplete={onCompleteInitial} onCancel={()=>{ setMode("init")}}/>
     )
   }
 
@@ -114,8 +111,8 @@ const OccupancyPermitWebController = (props) => {
     pages,
     moveNextStep,
     appService: svc,
-    saveHandler,
-    stepCompleted: step < app.step
+    stepCompleted: step < app.step,
+    onSubmitOccupancyType
   };
 
   return (

@@ -12,8 +12,8 @@ import {
   Button,
   FormPanel,
   Decimal,
-  Radio,
-  Item
+  Service,
+  Error
 } from 'rsi-react-web-components';
 
 import { EmailVerification } from 'rsi-react-filipizen-components'
@@ -27,7 +27,6 @@ const steps = [
   {name: "apptype", title: "Application Type"},
   {name: "specifybldgpermit", title: "Specify Building Permit"},
   {name: "verifybldgpermit", title: "Verify Building Permit Information"},
-  {name: "occupancytype", title: "Select Type of Occupancy Permit"},
   {name: "confirmation", title: "Confirmation"},
   {name: "newapp", title: "New Application "},
 ]
@@ -35,20 +34,21 @@ const steps = [
 const OccupancyPermitInitial = ({
   partner,
   service,
-  handler,
-  history
+  onComplete,
+  history,
+  appService
 }) => {
 
-  //TODO: remove temp email
   const [error, setError] = useState();
   const [errorText, setErrorText] = useState({});
-  const [contact, setContact] = useState({name: "peter", address: "cebu", email: "peter@gmail.com"});
+  const [contact, setContact] = useState({});
   const [appType, setAppType] = useState("new");
   const [appno, setAppno] = useState();
   const [bldgPermitNo, setBldgPermitNo] = useState();
   const [bldgPermit, setBldgPermit] = useState({});
-  const [occupancyType, setOccupancyType] = useState({});
+  //TOOD: reset step t0 0
   const [activeStep, setActiveStep] = useState(1);
+
 
   const step = steps[activeStep];
 
@@ -64,12 +64,20 @@ const OccupancyPermitInitial = ({
     if (appType === "new") {
       moveNextStep();
     } else {
-      setAppno(appno);
+      appService.findCurrentInfo({appid: appno}, (err, app) => {
+        if (err) {
+          setError(err);
+        } else if (!app) {
+          setError("Application no. does not exist.")
+        } else {
+          onComplete({appType, appno});
+        }
+      })
     }
   }
 
   const exitInitial = () => {
-    handler(appno);
+    onComplete({appType: "new", appno});
   }
 
   const onverifyEmail = (contact) => {
@@ -79,17 +87,16 @@ const OccupancyPermitInitial = ({
 
   const loadBuildingPermit = () => {
     if (bldgPermitNo) {
-      //TODO: load building permit info
-      setBldgPermit({
-        permitno: "BP-121-01111",
-        applicant: "NAZARENO, ELMO",
-        project: {
-          title: "Two Bedroom Apartment",
-          location: "Talisay, Cebu",
-          cost: 1250000.00
+      setError(null);
+      const svc = Service.lookup(`${partner.id}:OboOnlineService`);
+      svc.findBldgPermitNo({permitno: bldgPermitNo}, (err, permit) => {
+        if (err) {
+          setError(err);
+        } else {
+          setBldgPermit(permit);
+          moveNextStep();
         }
       })
-      moveNextStep();
     } else {
       setErrorText({bldgPermitNo: "Please specify the Building Permit No."});
     }
@@ -99,22 +106,23 @@ const OccupancyPermitInitial = ({
     moveNextStep();
   }
 
-  const submitOccupancyType = () => {
-    moveNextStep();
-  }
-
   const saveApp = () => {
-    setAppno("137-CXAG-1212");
-    moveNextStep();
-    //TODO: save app
-    // svc.create(newApp, (err, app) => {
-    //   if (err) {
-    //     setError(err);
-    //   } else {
-    //     setAppno(app.objid)
-    //     moveNextStep();
-    //   }
-    // });
+    const newApp = {
+      orgcode: partner.id,
+      apptype: appType,
+      permittype: bldgPermit.apptype,
+      applicant: bldgPermit.applicant,
+      bldgpermit: bldgPermit,
+      contact
+    }
+    appService.create(newApp, (err, app) => {
+      if (err) {
+        setError(err);
+      } else {
+        setAppno(app.objid)
+        moveNextStep();
+      }
+    });
   }
 
   return (
@@ -126,7 +134,7 @@ const OccupancyPermitInitial = ({
         </Panel>
 
         <Panel visibleWhen={step.name === "apptype"}>
-          <ApplicationTypeSelect service={service} onCancel={history.goBack} onSubmit={submitAppType}  />
+          <ApplicationTypeSelect service={service} error={error} onCancel={history.goBack} onSubmit={submitAppType}  />
         </Panel>
 
         <Panel visibleWhen={step.name === "specifybldgpermit"}>
@@ -138,8 +146,8 @@ const OccupancyPermitInitial = ({
             variant="outlined"
             fullWidth={false}
             required
-            error={errorText.bldgPermitNo}
-            helperText={errorText.bldgPermitNo}
+            error={errorText.bldgPermitNo || error}
+            helperText={errorText.bldgPermitNo || error}
             size="small"
             />
           <ActionBar>
@@ -148,36 +156,23 @@ const OccupancyPermitInitial = ({
           </ActionBar>
         </Panel>
 
-        <FormPanel visibleWhen={step.name === "verifybldgpermit"} context={bldgPermit} handler={setBldgPermitNo}>
+        <FormPanel visibleWhen={step.name === "verifybldgpermit"} context={bldgPermit} handler={setBldgPermit}>
           <Subtitle>Verify Building Permit Information</Subtitle>
           <Spacer height={30} />
           <Text caption="Building Permit No." name="permitno" readOnly={true} />
-          <Text caption="Applicant" name="applicant" readOnly={true} />
+          <Text caption="Applicant" name="applicant.name" readOnly={true} />
           <Spacer />
-          <Text caption="Project Title" name="project.title" readOnly={true} />
-          <Text caption="Location" name="project.location" readOnly={true} />
-          <Decimal caption="Project Cost" name="project.cost" readOnly={true} />
+          <Text caption="Project Title" name="title" readOnly={true} />
+          <Text caption="Location" name="location.text" readOnly={true} />
+          <Decimal caption="Project Cost" name="projectcost" readOnly={true} />
           <ActionBar>
             <BackLink action={movePrevStep} />
             <Button caption="Next" action={submitBuildingPermit} />
           </ActionBar>
         </FormPanel>
 
-        <FormPanel visibleWhen={step.name === "occupancytype"} context={occupancyType} handler={setOccupancyType}>
-          <Subtitle>{step.title}</Subtitle>
-          <Spacer height={30} />
-          <Radio name="apptype">
-            <Item caption="Full (Completed)" value="full" />
-            <Item caption="Partial" value="partial" />
-          </Radio>
-          <ActionBar>
-            <BackLink action={movePrevStep} />
-            <Button caption="Next" action={submitOccupancyType} />
-          </ActionBar>
-        </FormPanel>
-
         <Panel visibleWhen={step.name === "confirmation"}>
-          <Confirmation partner={partner} onCancel={movePrevStep} onContinue={saveApp} />
+          <Confirmation partner={partner} error={error} onCancel={movePrevStep} onContinue={saveApp} />
         </Panel>
 
         <Panel visibleWhen={step.name === "newapp"} width={400}>
