@@ -14,8 +14,9 @@ import OccupancyType from "./OccupancyType";
 import PlannedVsActual from "./PlannedVsActual";
 import ActualCost from "./ActualCost";
 import OtherCost from "./OtherCost";
+import Contractor from "./Contractor";
 import Professionals from "./Professionals";
-import Confirm from "./Confirm";
+import Confirmation from "./Confirmation";
 
 const svc = Service.lookup("OnlineOccupancyPermitService", "obo");
 
@@ -25,8 +26,9 @@ const pages = [
   { step: 2, name: 'plannedactual', caption: 'Planned vs Actual', component: PlannedVsActual },
   { step: 3, name: 'actualcost', caption: 'Actual Cost', component: ActualCost },
   { step: 4, name: 'othercost', caption: 'Other Cost', component: OtherCost },
-  { step: 5, name: 'professionals', caption: 'Professionals', component: Professionals },
-  { step: 6, name: 'confirm', caption: 'Confirm', component: Confirm },
+  { step: 5, name: 'contractor', caption: 'Contractor', component: Contractor },
+  // { step: 6, name: 'professionals', caption: 'Professionals', component: Professionals },
+  { step: 6, name: 'confirmation', caption: 'Confirmation', component: Confirmation },
 ]
 
 const OccupancyPermitWebController = (props) => {
@@ -78,14 +80,23 @@ const OccupancyPermitWebController = (props) => {
   }
 
   const moveNextStep = () => {
-    svc.moveNextStep({appid: appno}, (err, updatedApp) => {
-      if (err) {
-        setError(err);
-      } else {
-        setStep(updatedApp.step);
-        setApp({...app, step: updatedApp.step});
-      }
-    });
+    const stepCompleted = step < app.step;
+    if (stepCompleted) {
+      setStep(ps => ps + 1);
+    } else {
+      svc.moveNextStep({appid: appno}, (err, updatedApp) => {
+        if (err) {
+          setError(err);
+        } else {
+          setStep(updatedApp.step);
+          setApp({...app, step: updatedApp.step});
+        }
+      });
+    }
+  }
+
+  const movePrevStep = () => {
+    setStep(ps => ps - 1);
   }
 
   const onSubmitOccupancyType = (appType) => {
@@ -110,6 +121,7 @@ const OccupancyPermitWebController = (props) => {
     appno,
     pages,
     moveNextStep,
+    movePrevStep,
     appService: svc,
     stepCompleted: step < app.step,
     onSubmitOccupancyType

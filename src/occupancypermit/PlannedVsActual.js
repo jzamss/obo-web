@@ -9,13 +9,16 @@ import {
   Text,
   Label,
   Decimal,
-  Date
+  Date,
+  BackLink
 } from 'rsi-react-web-components';
 
 const PlannedVsActual = ({
   appno,
   appService,
-  moveNextStep
+  moveNextStep,
+  movePrevStep,
+  stepCompleted
 }) => {
 
   const [error, setError] = useState();
@@ -89,6 +92,7 @@ const PlannedVsActual = ({
         </Panel>
       </FormPanel>
       <ActionBar>
+        <BackLink action={movePrevStep} />
         <Button caption="Next" action={updatePermit} />
       </ActionBar>
     </Panel>
