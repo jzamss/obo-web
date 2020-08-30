@@ -132,11 +132,6 @@ const OccupancyPermitInitial = ({
         <Panel visibleWhen={step.name === "email"}>
           <EmailVerification showName={true} onCancel={history.goBack} onVerify={onverifyEmail}  />
         </Panel>
-        {/**
-          <Panel visibleWhen={step.name === "apptype"}>
-            <ApplicationTypeSelect service={service} error={error} onCancel={history.goBack} onSubmit={submitAppType}  />
-          </Panel>
-         */}
 
         <Panel visibleWhen={step.name === "specifybldgpermit"}>
           <Subtitle>{step.title}</Subtitle>
