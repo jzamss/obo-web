@@ -51,7 +51,7 @@ const BuildingPermitRealProperty = (props) => {
   }
 
   const findProperty = () => {
-    const svc = Service.lookup( partner.id + ":OboOnlineService" );
+    const svc = Service.lookup( partner.orgcode + ":OboOnlineService" );
     svc.findLocation( {refno }, (err, property) => {
       if (err) {
         setError(err);
@@ -115,8 +115,6 @@ const BuildingPermitRealProperty = (props) => {
   return (
     <Panel>
       <Subtitle>Lot Information</Subtitle>
-      <Error msg={error} />
-
       <Panel visibleWhen={mode === "view-rpus"}>
         <Spacer />
         <Table items={rpus} size="small" showPagination={false} >
@@ -178,8 +176,10 @@ const BuildingPermitRealProperty = (props) => {
       </Panel>
 
       <Panel visibleWhen={mode === "edit-owner-info"}>
-        <Subtitle>Lot Owner Details</Subtitle>
-        <p>Please update the information if necessary</p>
+        {/**
+          <Subtitle>Lot Owner Details</Subtitle>
+         */}
+         <p>Please update the information if necessary</p>
         <FormPanel context={property} handler={setProperty}>
           <LotOwnershipType name="lotowned" row />
           <OwnershipInfo name="owner" owner={property.owner} orgcode={partner.id} showIdEntry={true} />

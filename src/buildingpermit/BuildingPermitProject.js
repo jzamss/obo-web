@@ -31,6 +31,13 @@ const RadioItem = ({item}) => {
   )
 }
 
+const initialWorkTypes = [
+  { name: "addition", caption: "ADDITION", value: "ADDITION" },
+  { name: "alteration", caption: "ALTERATION", value: "ALTERATION" },
+  { name: "demolition", caption: "DEMOLITION", value: "DEMOLITION" },
+  { name: "original", caption: "ORIGINAL", value: "ORIGINAL" },
+  { name: "renovation", caption: "RENOVATION", value: "RENOVATION" },
+];
 
 const BuildingPermitProject = ({
   partner,
@@ -41,8 +48,8 @@ const BuildingPermitProject = ({
 }) => {
   const initialProject = {
     appid: appno,
-    apptype:
-    "NEW", worktypes: {},
+    apptype: "NEW",
+    worktypes: initialWorkTypes,
     occupancytype: {
       objid: null,
       group: {},
@@ -97,6 +104,9 @@ const BuildingPermitProject = ({
       if (err) {
         setError(err);
       } else {
+        if (project.worktypes.length === 0) {
+          project.worktypes = initialWorkTypes;
+        }
         setProject(project);
         setMode("select-apptype");
       }
@@ -117,17 +127,12 @@ const BuildingPermitProject = ({
   }
 
   const validWorkTypes = () => {
-    let valid = false;
-    const worktypes = project.worktypes;
-    Object.keys(worktypes).forEach(key => {
-      if (worktypes[key] === true) {
-        valid = true;
-      }
-    });
-    return valid;
+    const idx = project.worktypes.findIndex(wt => wt.checked === true);
+    return idx >= 0;
   }
 
   const submitWorkType = () => {
+    setError(null);
     if (validWorkTypes()) {
       setMode("select-occupancytype");
     } else {
@@ -205,16 +210,18 @@ const BuildingPermitProject = ({
       <FormPanel visibleWhen={mode === "select-worktype"} context={project} handler={setProject} >
         <Subtitle2>Select Work Type</Subtitle2>
         <Panel style={styles.column}>
-          <Checkbox caption="ADDITION" name="worktypes.addition" value="ADDITION" />
-          <Checkbox caption="ALTERATION" name="worktypes.alteration" value="ALTERATION" />
-          <Checkbox caption="DEMOLITION" name="worktypes.demolition" value="DEMOLITION" />
-          <Checkbox caption="ORIGINAL" name="worktypes.original" value="ORIGINAL" />
-          <Checkbox caption="RENOVATION" name="worktypes.renovation" value="RENOVATION" />
+          {project.worktypes.map((worktype, idx) => (
+            <Checkbox
+              caption={worktype.caption}
+              name={`worktypes[${idx}].checked`}
+              value={worktype.value} />
+          ))}
         </Panel>
         <ActionBar>
           <BackLink action={() => setMode("select-apptype")} />
           <Button caption="Next" action={submitWorkType} />
         </ActionBar>
+        <p>{JSON.stringify(project.worktypes)}</p>
       </FormPanel>
 
       <Panel visibleWhen={mode === "select-occupancytype"}>

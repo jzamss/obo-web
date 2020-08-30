@@ -45,7 +45,7 @@ const BuildingPermitInitial = (props) => {
   const [appType, setAppType] = useState("new")
   const [projectName, setProjectName] = useState()
   const [appno, setAppno] = useState()
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(0);
   const [error, setError] = useState();
 
   const { partner, service, handler } = props
@@ -164,7 +164,7 @@ const pages = [
   { step: 2, name: 'location', caption: 'Location', component: BuildingPermitLocation },
   { step: 3, name: 'rpu', caption: 'Real Property', component: BuildingPermitRealProperty },
   { step: 4, name: 'professional', caption: 'Professional', component: BuildingPermitProfessionals },
-  { step: 4, name: 'project', caption: 'Project Details', component: BuildingPermitProject },
+  { step: 5, name: 'project', caption: 'Project Details', component: BuildingPermitProject },
   { step: 6, name: 'accessories', caption: 'Accessories', component: BuildingPermitAccessories },
   { step: 7, name: 'ancillarylist', caption: 'Other Permits', component: BuildingPermitOtherPermits },
   { step: 8, name: 'confirm', caption: 'Confirm', component: BuildingPermitConfirm },
@@ -190,12 +190,13 @@ const BuildingPermitWebController = (props) => {
 
   const findCurrentApp = () => {
     svc.findCurrentInfo({appid: appno}, (err, app) => {
+      const orgcode = partner.orgcode || partner.id;
       if (err) {
         setError(err);
       } else {
         if(!app) {
           setError("Application no. does not exist");
-        } else if( partner.orgcode != app.orgcode ) {
+        } else if( orgcode != app.orgcode ) {
           setError("The application number provided is not for this local government");
         } else {
           setApp(app);
@@ -237,15 +238,20 @@ const BuildingPermitWebController = (props) => {
   }
 
   const moveNextStep = () => {
-    svc.moveNextStep({appid: appno}, (err, updatedApp) => {
-      console.log("updatedApp", updatedApp);
-      if (err) {
-        setError(err);
-      } else {
-        setStep(updatedApp.step);
-        setApp({...app, step: updatedApp.step});
-      }
-    });
+    const stepCompleted = step < app.step;
+    if (stepCompleted) {
+      setStep(ps => ps + 1);
+    } else {
+      svc.moveNextStep({appid: appno}, (err, updatedApp) => {
+        console.log("updatedApp", updatedApp);
+        if (err) {
+          setError(err);
+        } else {
+          setStep(updatedApp.step);
+          setApp({...app, step: updatedApp.step});
+        }
+      });
+    }
   }
 
   const handleStep = (step) => {

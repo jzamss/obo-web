@@ -24,7 +24,7 @@ import TrackingInfo from "../components/TrackingInfo";
 
 const steps = [
   {name: "email", title: "Email Verification"},
-  {name: "apptype", title: "Application Type"},
+  // {name: "apptype", title: "Application Type"},
   {name: "specifybldgpermit", title: "Specify Building Permit"},
   {name: "verifybldgpermit", title: "Verify Building Permit Information"},
   {name: "confirmation", title: "Confirmation"},
@@ -47,7 +47,7 @@ const OccupancyPermitInitial = ({
   const [bldgPermitNo, setBldgPermitNo] = useState();
   const [bldgPermit, setBldgPermit] = useState({});
   //TOOD: reset step t0 0
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(0);
 
 
   const step = steps[activeStep];
@@ -130,12 +130,13 @@ const OccupancyPermitInitial = ({
       <Card>
         <Title>{service.title}</Title>
         <Panel visibleWhen={step.name === "email"}>
-          <EmailVerification showName={true} onVerify={onverifyEmail}  />
+          <EmailVerification showName={true} onCancel={history.goBack} onVerify={onverifyEmail}  />
         </Panel>
-
-        <Panel visibleWhen={step.name === "apptype"}>
-          <ApplicationTypeSelect service={service} error={error} onCancel={history.goBack} onSubmit={submitAppType}  />
-        </Panel>
+        {/**
+          <Panel visibleWhen={step.name === "apptype"}>
+            <ApplicationTypeSelect service={service} error={error} onCancel={history.goBack} onSubmit={submitAppType}  />
+          </Panel>
+         */}
 
         <Panel visibleWhen={step.name === "specifybldgpermit"}>
           <Subtitle>{step.title}</Subtitle>

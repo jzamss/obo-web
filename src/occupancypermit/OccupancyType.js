@@ -41,7 +41,7 @@ const OccupancyType = ({
         </Radio>
       </FormPanel>
       <ActionBar>
-        <Button caption="Next" action={() => onSubmit(onSubmitOccupancyType)} />
+        <Button caption="Next" action={() => onSubmitOccupancyType(app.apptype)} />
       </ActionBar>
     </Panel>
   )

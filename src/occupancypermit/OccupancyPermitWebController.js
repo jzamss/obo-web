@@ -9,6 +9,7 @@ import {
   Card
 } from 'rsi-react-web-components';
 
+import ApplicationTypeSelect from "../components/ApplicationTypeSelect";
 import OccupancyPermitInitial from "./OccupancyPermitInitial";
 import OccupancyType from "./OccupancyType";
 import PlannedVsActual from "./PlannedVsActual";
@@ -17,6 +18,7 @@ import OtherCost from "./OtherCost";
 import Contractor from "./Contractor";
 import Professionals from "./Professionals";
 import Confirmation from "./Confirmation";
+
 
 const svc = Service.lookup("OnlineOccupancyPermitService", "obo");
 
@@ -34,7 +36,7 @@ const pages = [
 const OccupancyPermitWebController = (props) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [mode, setMode] = useState("init");
+  const [mode, setMode] = useState("apptype");
   const [appType, setAppType] = useState("full");
   const [appno, setAppno] = useState(getUrlParameter(props.location, "appid"));
   const [app, setApp] = useState({});
@@ -48,6 +50,7 @@ const OccupancyPermitWebController = (props) => {
   }
 
   const findCurrentApp = () => {
+    if (!appno) return;
     svc.findCurrentInfo({appid: appno}, (err, app) => {
       if (err) {
         setError(err);
@@ -55,6 +58,7 @@ const OccupancyPermitWebController = (props) => {
         if(!app) {
           setError("Application no. does not exist");
         }
+        console.log("partner", partner)
         if( partner.orgcode != app.orgcode ) {
           setError("The application number provided is not for this local government");
         }
@@ -72,11 +76,9 @@ const OccupancyPermitWebController = (props) => {
   }, [appno]);
 
   const onCompleteInitial = ({appType, appno}) => {
-    if (appType !== "new") {
-      setAppno(appno);
-      setStep(step + 1);
-      setMode("processing");
-    }
+    setAppno(appno);
+    setStep(step + 1);
+    setMode("processing");
   }
 
   const moveNextStep = () => {
@@ -108,6 +110,33 @@ const OccupancyPermitWebController = (props) => {
     setStep(step);
   }
 
+  const submitAppType = ({appType, appno}) => {
+    if (appType === "new") {
+      setMode("init");
+    } else {
+      svc.findCurrentInfo({appid: appno}, (err, app) => {
+        if (err) {
+          setError(err);
+        } else if (!app) {
+          setError("Application no. does not exist.")
+        } else {
+          onCompleteInitial({appType, appno});
+        }
+      })
+    }
+  }
+
+  const onComplete = () => {
+    moveNextStep();
+    props.history.goBack();
+  }
+
+  if (mode === "apptype") {
+    return (
+      <ApplicationTypeSelect service={props.service} error={error} onCancel={history.goBack} onSubmit={submitAppType}  />
+    )
+  }
+
   if (mode === "init") {
     return (
       <OccupancyPermitInitial {...props} appService={svc} onComplete={onCompleteInitial} onCancel={()=>{ setMode("init")}}/>
@@ -124,7 +153,8 @@ const OccupancyPermitWebController = (props) => {
     movePrevStep,
     appService: svc,
     stepCompleted: step < app.step,
-    onSubmitOccupancyType
+    onSubmitOccupancyType,
+    onComplete
   };
 
   return (

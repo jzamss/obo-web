@@ -15,6 +15,7 @@ const Confirmation = ({
   appService,
   moveNextStep,
   movePrevStep,
+  onComplete,
   stepCompleted
 }) => {
 
@@ -37,7 +38,7 @@ const Confirmation = ({
       if (err) {
         setError(err)
       } else {
-        moveNextStep();
+        onComplete();
       }
     })
   }
