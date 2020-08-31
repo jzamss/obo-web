@@ -15,15 +15,10 @@ import ApplicationTypeSelect from "../components/ApplicationTypeSelect";
 import BuildingPermitInitial from "./BuildingPermitInitial";
 import BuildingPermitApplicant from "./BuildingPermitApplicant";
 import BuildingPermitLocation from "./BuildingPermitLocation";
-import BuildingPermitRealProperty from "./BuildingPermitLocation";
-import BuildingPermitProfessionals from "./BuildingPermitProfessionals";
 import BuildingPermitProject from "./BuildingPermitProject";
 import BuildingPermitAccessories from "./BuildingPermitAccessories";
 import BuildingPermitOtherPermits from "./BuildingPermitOtherPermits";
 import BuildingPermitConfirm from "./BuildingPermitOtherPermits";
-
-// { step: 3, name: 'rpu', caption: 'Real Property', component: BuildingPermitRealProperty },
-  // { step: 4, name: 'professional', caption: 'Professional', component: BuildingPermitProfessionals },
 
 const pages = [
   { step: 0, component: null },
