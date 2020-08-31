@@ -20,6 +20,8 @@ import {
   Date
 } from "rsi-react-web-components";
 
+import ProfessionalLookup from "../components/ProfessionalLookup";
+
 const svc = Service.lookup("OboMiscListService", "obo");
 
 const RadioItem = ({item}) => {
@@ -60,12 +62,13 @@ const BuildingPermitProject = ({
   const [error, setError] = useState();
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState(stepCompleted ? "project-detail" : "select-apptype");
+  const [mode, setMode] = useState("project-detail");
   const [occupancyMode, setOccupancyMode] = useState("group");
   const [project, setProject] = useState(initialProject);
   const [occupancyGroups, setOccupancyGroups] = useState([]);
   const [occupancyDivisions, setOccupancyDivisions] = useState([]);
   const [occupancyTypes, setOccupancyTypes] = useState([]);
+  const [professionals, setProfessionals] = useState([]);
 
   const loadOccupancyGroups = () => {
     svc.getOccupancyTypeGroups((err, groups) => {
@@ -106,9 +109,18 @@ const BuildingPermitProject = ({
       } else {
         if (project.worktypes.length === 0) {
           project.worktypes = initialWorkTypes;
+        } else {
+          const workTypes = initialWorkTypes.map(wt => {
+            let workType = project.worktypes.find(pwt => wt.value === pwt)
+            if (workType) {
+              return {...wt, checked: true};
+            }
+            return wt;
+          })
+          project.worktypes = workTypes;
         }
         setProject(project);
-        setMode("select-apptype");
+        setMode("project-detail");
       }
     });
   }, [])
@@ -122,8 +134,10 @@ const BuildingPermitProject = ({
       loadOccupancyTypes();
   }, [occupancyMode])
 
-  const submitAppType = () => {
-    setMode("select-worktype");
+
+
+  const submitProjectDetail = () => {
+    updateProject("select-worktype");
   }
 
   const validWorkTypes = () => {
@@ -134,7 +148,7 @@ const BuildingPermitProject = ({
   const submitWorkType = () => {
     setError(null);
     if (validWorkTypes()) {
-      setMode("select-occupancytype");
+      updateProject("select-occupancytype");
     } else {
       setError("Please check at least one work type.")
     }
@@ -163,28 +177,55 @@ const BuildingPermitProject = ({
       let occupancytype = {appid: appno, ...project.occupancytype};
       const occupancyTypeInfo = occupancyTypes.find(o => o.objid === occupancytype.objid)
       occupancytype = {...occupancytype, ...occupancyTypeInfo};
-      setProject({...project, occupancytypeid: occupancytype.objid, occupancytype});
-      setMode("project-detail");
+      const updatedProject = {...project, occupancytypeid: occupancytype.objid, occupancytype};
+      setProject(updatedProject);
+      updateProject("professional", updatedProject);
     }
   }
 
-  const updateProject = () => {
-    setLoading(true);
+  const updateProject = (newMode, updatedProject = {}) => {
     setError(null);
-    const updatedProject = {appid: appno, ...project};
-    appService.updateProjectInfo(updatedProject, (err, proj) => {
+    const proj = {
+      appid: appno,
+      ...project,
+      ...updatedProject,
+      worktypes: project.worktypes.filter(wt => wt.checked).map(wt => wt.value),
+    };
+    appService.update(proj, (err, proj) => {
       if (err) {
-        setError(err);
+        setError(error);
       } else {
-        moveNextStep();
+        setMode(newMode);
+        setLoading(false);
       }
-      setLoading(false);
     });
   }
+
+  // const updateProject = () => {
+  //   setLoading(true);
+  //   setError(null);
+  //   const updatedProject = {appid: appno, ...project};
+  //   appService.updateProject(updatedProject, (err, proj) => {
+  //     if (err) {
+  //       setError(err);
+  //     } else {
+  //       moveNextStep();
+  //     }
+  //     setLoading(false);
+  //   });
+  // }
 
   const backToOccupancy = () => {
     setMode("select-occupancytype");
     setOccupancyMode("type");
+  }
+
+  const onSelectProfessional = () => {
+
+  }
+
+  const submitProfessionals = () => {
+    setMode("accessories");
   }
 
   return (
@@ -193,17 +234,24 @@ const BuildingPermitProject = ({
       <Spacer />
       <Error msg={error} />
 
-      <FormPanel visibleWhen={mode === "select-apptype"} context={project} handler={setProject} >
-        <Subtitle2>Select Application Type</Subtitle2>
-        <Panel style={{marginLeft: 20}}>
-          <Radio name="apptype">
-            <Item caption="New Construction" value="NEW" />
-            <Item caption="Renovation" value="RENOVATION" disabled={true} />
-            <Item caption="Demolition" value="DEMOLITION" disabled={true}  />
-          </Radio>
+      <FormPanel visibleWhen={mode === "project-detail"} context={project} handler={setProject}>
+        <Text caption="Project Title" name="title" required={true} readOnly={stepCompleted} autoFocus={true}/>
+        <Text caption="Project Description" name="description" required={true} readOnly={stepCompleted} />
+        <Spacer/>
+        <Integer caption="No of Units" name="numunits" required={true} readOnly={stepCompleted} />
+        <Panel row>
+          <Decimal caption="Total Floor Area [sq.meter]" name="totalfloorarea" required={true} readOnly={stepCompleted} fullWidth textAlign="left" />
+          <Decimal caption="Building Height [meter]" name="height" required={true} readOnly={stepCompleted} fullWidth textAlign="left" />
         </Panel>
-        <ActionBar>
-          <Button caption="Next" action={submitAppType} />
+        <Integer caption="No. of Storeys" name="numfloors" required={true} readOnly={stepCompleted} />
+        <Spacer/>
+        <Decimal caption="Estimated Cost [Php]" name="projectcost" required={true} readOnly={stepCompleted} decimalScale={2} textAlign="left" />
+        <Panel row>
+          <Date caption="Proposed Construction Date" name="dtproposedconstruction" readOnly={stepCompleted} />
+          <Date caption="Expected Completion Date" name="dtexpectedcompletion" readOnly={stepCompleted} />
+        </Panel>
+        <ActionBar visibleWhen={!stepCompleted}>
+          <Button caption="Next" action={submitProjectDetail} />
         </ActionBar>
       </FormPanel>
 
@@ -218,10 +266,9 @@ const BuildingPermitProject = ({
           ))}
         </Panel>
         <ActionBar>
-          <BackLink action={() => setMode("select-apptype")} />
+          <BackLink action={() => setMode("project-detail")} />
           <Button caption="Next" action={submitWorkType} />
         </ActionBar>
-        <p>{JSON.stringify(project.worktypes)}</p>
       </FormPanel>
 
       <Panel visibleWhen={mode === "select-occupancytype"}>
@@ -253,24 +300,13 @@ const BuildingPermitProject = ({
         </FormPanel>
       </Panel>
 
-      <FormPanel visibleWhen={mode === "project-detail"} context={project} handler={setProject}>
-        <Text caption="Project Title" name="title" required={true} readOnly={stepCompleted} />
-        <Text caption="Project Description" name="description" required={true} readOnly={stepCompleted} />
-        <Spacer/>
-        <Text caption="Occupancy Type" name="occupancytype.title" required={true} readOnly={stepCompleted} />
-        <Integer caption="No of Units" name="numunits" required={true} readOnly={stepCompleted} />
-        <Decimal caption="Total Floor Area [sq.meter]" name="totalfloorarea" required={true} readOnly={stepCompleted} />
-        <Decimal caption="Building Height [meter]" name="height" required={true} readOnly={stepCompleted} />
-        <Integer caption="No of Storeys" name="numfloors" required={true} readOnly={stepCompleted} />
-        <Spacer/>
-        <Decimal caption="Estimated Cost [Php]" name="projectcost" required={true} readOnly={stepCompleted} decimalScale={2}/>
-        <Panel row>
-          <Date caption="Proposed Construction Date" name="dtproposedconstruction" readOnly={stepCompleted} />
-          <Date caption="Expected Completion Date" name="dtexpectedcompletion" readOnly={stepCompleted} />
-        </Panel>
-        <ActionBar visibleWhen={!stepCompleted}>
-          <BackLink action={backToOccupancy} />
-          <Button caption="Next" action={updateProject} />
+      <FormPanel visibleWhen={mode === "professional"} context={project} handler={setProject} >
+        <p>Specify full time inspector and supervisor of construction work</p>
+        <ProfessionalLookup onSelect={onSelectProfessional} />
+        <p>{JSON.stringify(professionals)}</p>
+        <ActionBar>
+          <BackLink action={() => setMode("select-occupancytype")} />
+          <Button caption="Next" action={submitProfessionals} />
         </ActionBar>
       </FormPanel>
     </Panel>

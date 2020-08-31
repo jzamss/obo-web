@@ -52,11 +52,10 @@ const BuildingPermitLocation = (props) => {
     setMode("initial");
   }
 
-  const findProperty = () => {
+  const findProperty = (newMode, newRefno) => {
     const orgcode = partner.orgcode || partner.id;
     const svc = Service.lookup( orgcode + ":OboOnlineService" );
-    svc.findLocation( {refno }, (err, property) => {
-      console.log("property", property)
+    svc.findLocation( { refno: refno || newRefno }, (err, property) => {
       if (err) {
         setError(err);
       } else {
@@ -72,7 +71,7 @@ const BuildingPermitLocation = (props) => {
         property.lotowned = 1;
         property.appid = props.appno;
         setProperty(property);
-        setMode("view-lot");
+        setMode(newMode || "view-lot");
       }
     });
   }
@@ -142,6 +141,11 @@ const BuildingPermitLocation = (props) => {
     })
   }
 
+  const editOwner = (rpu) => {
+    //TODO;
+    // findProperty("edit-owner-info", rpu.tdno );
+  }
+
   const deleteRpu = (rpu) => {
     setError(null);
     appService.removeRpu(rpu, (err, res) => {
@@ -159,6 +163,7 @@ const BuildingPermitLocation = (props) => {
       <Panel visibleWhen={mode === "view-rpus"}>
         <Subtitle>Project Location</Subtitle>
         <Spacer />
+        <Error msg={error} />
         <Table items={rpus} size="small" showPagination={false} >
           <TableColumn caption="TD No." expr="tdno" />
           <TableColumn caption="Title No." expr="titleno" />
@@ -177,7 +182,7 @@ const BuildingPermitLocation = (props) => {
           <TableColumn>
             <Panel row>
               <ViewButton action={()=>{}} size="small" />
-              <EditButton action={()=>{}} size="small" />
+              <EditButton action={editOwner} size="small" />
               <DeleteButton action={deleteRpu} size="small" />
             </Panel>
           </TableColumn>
@@ -265,7 +270,6 @@ const BuildingPermitLocation = (props) => {
           <BackLink caption="Back" action={() => setMode("view-rpus")} variant="text" />
           <Button caption='Next' action={updateLocation} />
         </ActionBar>
-        <p>{JSON.stringify(location, null, 2)}</p>
       </Panel>
     </Panel>
   );
