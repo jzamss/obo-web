@@ -28,7 +28,7 @@ const steps = [
 ]
 
 const BuildingPermitInitial = (props) => {
-  const [contact, setContact] = useState({name: "peter", address: "cebu", email: "peter@gmail.com"})
+  const [contact, setContact] = useState({})
   const [agreeDisclaimer, setAgreeDisclaimer] = useState(false)
   const [appType, setAppType] = useState("new")
   const [projectName, setProjectName] = useState()
@@ -36,11 +36,8 @@ const BuildingPermitInitial = (props) => {
   const [activeStep, setActiveStep] = useState(0);
   const [error, setError] = useState();
 
-  const { partner, service, handler } = props
+  const { partner, service, handler, history, onCancel } = props
   const step = steps[activeStep];
-
-  console.log("step", step)
-  console.log("service", service)
 
   useEffect(() => {
     const hash = steps[activeStep].name;
@@ -86,7 +83,7 @@ const BuildingPermitInitial = (props) => {
     <Page>
       <Card>
         <Title>{service.title}</Title>
-        <EmailVerification showName={true} onVerify={onverifyEmail} visibleWhen={step.name === "email"} />
+        <EmailVerification showName={true} onCancel={onCancel} onVerify={onverifyEmail} visibleWhen={step.name === "email"} />
 
         <Panel visibleWhen={step.name === "apptype"}>
           <Subtitle>New Building Permit Application</Subtitle>

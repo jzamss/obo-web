@@ -198,8 +198,8 @@ const BuildingPermitProject = ({
         <Panel style={{marginLeft: 20}}>
           <Radio name="apptype">
             <Item caption="New Construction" value="NEW" />
-            <Item caption="Renovation" value="RENOVATION" />
-            <Item caption="Demolition" value="DEMOLITION" />
+            <Item caption="Renovation" value="RENOVATION" disabled={true} />
+            <Item caption="Demolition" value="DEMOLITION" disabled={true}  />
           </Radio>
         </Panel>
         <ActionBar>

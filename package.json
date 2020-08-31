@@ -28,7 +28,8 @@
     "react-dom": "^16.13.1",
     "react-scripts": "^3.4.1",
     "rsi-react-filipizen-components": "file:../rsi-react-filipizen-components",
-    "rsi-react-web-components": "file:../rsi-react-web-components"
+    "rsi-react-web-components": "file:../rsi-react-web-components",
+    "use-immer": "^0.4.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
@@ -51,10 +52,13 @@
     "react-dom": "^16.13.1",
     "react-scripts": "^3.4.1",
     "rsi-react-filipizen-components": "file:../rsi-react-filipizen-components",
-    "rsi-react-web-components": "file:../rsi-react-web-components"
+    "rsi-react-web-components": "file:../rsi-react-web-components",
+    "use-immer": "^0.4.1"
   },
   "files": [
     "dist"
   ],
-  "dependencies": {}
+  "dependencies": {
+
+  }
 }

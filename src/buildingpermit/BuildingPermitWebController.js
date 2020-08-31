@@ -2,20 +2,9 @@ import React, { useState, useEffect } from 'react';
 import {
   Panel,
   Card,
-  Subtitle2,
-  Button,
-  Radio,
-  Checkbox,
-  ActionBar,
-  BackLink,
   Title,
-  Item,
-  Spacer,
   Service,
-  Error,
-  Text,
   Stepper,
-  Subtitle,
   getUrlParameter,
   Page
 } from 'rsi-react-web-components';
@@ -26,24 +15,25 @@ import ApplicationTypeSelect from "../components/ApplicationTypeSelect";
 import BuildingPermitInitial from "./BuildingPermitInitial";
 import BuildingPermitApplicant from "./BuildingPermitApplicant";
 import BuildingPermitLocation from "./BuildingPermitLocation";
-import BuildingPermitRealProperty from "./BuildingPermitRealProperty";
+import BuildingPermitRealProperty from "./BuildingPermitLocation";
 import BuildingPermitProfessionals from "./BuildingPermitProfessionals";
 import BuildingPermitProject from "./BuildingPermitProject";
 import BuildingPermitAccessories from "./BuildingPermitAccessories";
 import BuildingPermitOtherPermits from "./BuildingPermitOtherPermits";
 import BuildingPermitConfirm from "./BuildingPermitOtherPermits";
 
+// { step: 3, name: 'rpu', caption: 'Real Property', component: BuildingPermitRealProperty },
+  // { step: 4, name: 'professional', caption: 'Professional', component: BuildingPermitProfessionals },
+
 const pages = [
   { step: 0, component: null },
   { step: 1, name: 'applicant', caption: 'Applicant', component: BuildingPermitApplicant },
-  { step: 2, name: 'location', caption: 'Location', component: BuildingPermitLocation },
-  { step: 3, name: 'rpu', caption: 'Real Property', component: BuildingPermitRealProperty },
-  { step: 4, name: 'professional', caption: 'Professional', component: BuildingPermitProfessionals },
-  { step: 5, name: 'project', caption: 'Project Details', component: BuildingPermitProject },
-  { step: 6, name: 'accessories', caption: 'Accessories', component: BuildingPermitAccessories },
-  { step: 7, name: 'ancillarylist', caption: 'Other Permits', component: BuildingPermitOtherPermits },
-  { step: 8, name: 'confirm', caption: 'Confirm', component: BuildingPermitConfirm },
-  { step: 9, name: 'finish', caption: 'Finish', component: BuildingPermitInitial }
+  { step: 2, name: 'location', caption: 'Project Location', component: BuildingPermitLocation },
+  { step: 3, name: 'project', caption: 'Project Details', component: BuildingPermitProject },
+  { step: 4, name: 'accessories', caption: 'Accessories', component: BuildingPermitAccessories },
+  { step: 5, name: 'ancillarylist', caption: 'Other Permits', component: BuildingPermitOtherPermits },
+  { step: 6, name: 'confirm', caption: 'Confirm', component: BuildingPermitConfirm },
+  { step: 7, name: 'finish', caption: 'Finish', component: BuildingPermitInitial }
 ]
 
 const BuildingPermitWebController = (props) => {
@@ -95,12 +85,12 @@ const BuildingPermitWebController = (props) => {
     setMode("processing");
   }
 
-  const processAppType = () => {
+  const processAppType = ({appType, appno}) => {
     if (appType === "new") {
       setMode(appType);
     } else {
       if (appno) {
-        findCurrentApp();
+        setAppno(appno);
       } else {
         setErrorText({...errorText, appno: "Tracking No. is required"})
       }
@@ -141,7 +131,7 @@ const BuildingPermitWebController = (props) => {
 
   if (mode === "new") {
     return (
-      <BuildingPermitInitial {...props} handler={onCreateNewApp} goBack={()=>{ setMode("init")}}/>
+      <BuildingPermitInitial {...props} handler={onCreateNewApp} onCancel={()=>{ setMode("apptype")}}/>
     )
   }
 
