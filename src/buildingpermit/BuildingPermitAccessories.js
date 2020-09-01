@@ -12,7 +12,10 @@ import {
   Button,
   Label,
   Decimal,
-  Integer
+  Integer,
+  Radio,
+  Item,
+  BackLink
 } from "rsi-react-web-components";
 
 const components = {
@@ -25,6 +28,8 @@ const BuildingPermitAccessories = (props) => {
   const { partner, appno, appService, moveNextStep, stepCompleted } = props;
 
   const [error, setError] = useState();
+  const [mode, setMode] = useState("initial");
+  const [hasAccessories, setHasAccessories] = useState("TRUE");
   const [loading, setLoading] = useState(false);
   const [buildingIsAccessory, setBuildingIsAccessory] = useState(false);
   const [hasItems, setHasItems] = useState(false);
@@ -71,6 +76,14 @@ const BuildingPermitAccessories = (props) => {
     loadAccessories();
   }, []);
 
+  const submitInitial = () => {
+		if (hasAccessories === "TRUE") {
+			setMode("select-accessories");
+		} else {
+			moveNextStep();
+		}
+  }
+
   const saveAccessories = () => {
 		const items = [];
     const deleted = [];
@@ -109,8 +122,9 @@ const BuildingPermitAccessories = (props) => {
     if (Object.keys(accessoryTypes).length > 0) {
       saveAccessories();
       loadAccessories();
+      setMode("infos")
     } else {
-      moveNextStep();
+      setError("Select at least one accessory type before proceeding.")
     }
   }
 
@@ -147,7 +161,18 @@ const BuildingPermitAccessories = (props) => {
       <Spacer />
       <Error msg={error} />
 
-      <Panel visibleWhen={hasItems === false}>
+			<Panel visibleWhen={mode==="initial"}>
+        <p>Does the plan include accessories?</p>
+        <Radio name="hasAccessories" value={hasAccessories} onChange={setHasAccessories}>
+          <Item caption="Yes" value="TRUE" />
+          <Item caption="No" value="FALSE" />
+        </Radio>
+        <ActionBar>
+          <Button caption="Next" action={submitInitial} />
+        </ActionBar>
+      </Panel>
+
+      <Panel visibleWhen={mode === "select-accessories"}>
         <Subtitle2>Select accessory to add if applicable</Subtitle2>
         <FormPanel context={accessoryTypes} handler={setAccessoryTypes}>
           {occupancyTypes.map(ot =>
@@ -155,11 +180,12 @@ const BuildingPermitAccessories = (props) => {
           )}
         </FormPanel>
         <ActionBar>
+          <BackLink action={() => setMode("initial")} />
           <Button caption="Next" action={submitAccessoryTypes} />
         </ActionBar>
       </Panel>
 
-      <FormPanel visibleWhen={hasItems === true} context={infos} handler={setInfos}>
+      <FormPanel visibleWhen={mode === "infos"} context={infos} handler={setInfos}>
         {accessoryList.map(o => {
           return (
             <div key={o.objid}>
@@ -184,7 +210,7 @@ const BuildingPermitAccessories = (props) => {
           )
         })}
         <ActionBar visibleWhen={!stepCompleted}>
-          <Button caption="Redo" action={redoSelection} visibleWhen={buildingIsAccessory} />
+          <BackLink action={() => setMode("select-accessories")}  />
           <Button caption="Next" action={saveAccesoryInfos} />
         </ActionBar>
       </FormPanel>
