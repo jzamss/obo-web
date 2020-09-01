@@ -101,8 +101,7 @@ const BuildingPermitWebController = (props) => {
     if (stepCompleted) {
       setStep(ps => ps + 1);
     } else {
-      svc.moveNextStep({appid: appno}, (err, updatedApp) => {
-        console.log("updatedApp", updatedApp);
+      svc.update({appid: appno, step: step+1}, (err, updatedApp) => {
         if (err) {
           setError(err);
         } else {

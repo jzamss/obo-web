@@ -52,7 +52,7 @@ const BuildingPermitLocation = (props) => {
     setMode("initial");
   }
 
-  const findProperty = (newMode, newRefno) => {
+  const findProperty = () => {
     const orgcode = partner.orgcode || partner.id;
     const svc = Service.lookup( orgcode + ":OboOnlineService" );
     svc.findLocation( { refno: refno || newRefno }, (err, property) => {
@@ -71,7 +71,7 @@ const BuildingPermitLocation = (props) => {
         property.lotowned = 1;
         property.appid = props.appno;
         setProperty(property);
-        setMode(newMode || "view-lot");
+        setMode("view-lot");
       }
     });
   }

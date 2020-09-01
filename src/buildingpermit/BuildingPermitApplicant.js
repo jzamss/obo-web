@@ -41,7 +41,6 @@ const BuildingPermitApplicant = (props) => {
     setLoading(true);
     setError(null);
     appService.getApplicant({appid: appno}, (err, applicant) => {
-      console.log("applicant", applicant)
       if (err) {
         setError(err)
       } else if(!applicant) {

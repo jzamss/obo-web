@@ -5,7 +5,6 @@ import {
   Checkbox,
   Panel,
   Radio,
-  Item,
   Error,
   Subtitle,
   Subtitle2,
@@ -17,7 +16,9 @@ import {
   Integer,
   Decimal,
   Number,
-  Date
+  Date,
+  Card,
+  Label
 } from "rsi-react-web-components";
 
 import ProfessionalLookup from "../components/ProfessionalLookup";
@@ -62,13 +63,15 @@ const BuildingPermitProject = ({
   const [error, setError] = useState();
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState("project-detail");
+  //TOOD: remove mode only
+  // const [mode, setMode] = useState("project-detail");
+  const [mode, setMode] = useState("professional");
   const [occupancyMode, setOccupancyMode] = useState("group");
   const [project, setProject] = useState(initialProject);
   const [occupancyGroups, setOccupancyGroups] = useState([]);
   const [occupancyDivisions, setOccupancyDivisions] = useState([]);
   const [occupancyTypes, setOccupancyTypes] = useState([]);
-  const [professionals, setProfessionals] = useState([]);
+  const [professional, setProfessional] = useState();
 
   const loadOccupancyGroups = () => {
     svc.getOccupancyTypeGroups((err, groups) => {
@@ -120,7 +123,9 @@ const BuildingPermitProject = ({
           project.worktypes = workTypes;
         }
         setProject(project);
-        setMode("project-detail");
+        //TODO: remove test mode
+        // setMode("project-detail");
+        setMode("professional");
       }
     });
   }, [])
@@ -220,12 +225,29 @@ const BuildingPermitProject = ({
     setOccupancyMode("type");
   }
 
-  const onSelectProfessional = () => {
+  const onSelectProfessional = (professionals) => {
+    if (professionals.length === 0) {
+      setProfessional({});
+      return;
+    }
 
+    const professional = professionals[0];
+    appService.update({appid: appno, appno: appno, contractorid: professional.objid}, (err, app) => {
+      if (err) {
+        setError(err);
+      } else {
+        setError(null);
+        setProfessional(professional);
+      }
+    });
   }
 
-  const submitProfessionals = () => {
-    setMode("accessories");
+  const submitProfessional = () => {
+    if (!professional) {
+      setError("Please select a professional.")
+    } else {
+      moveNextStep();
+    }
   }
 
   return (
@@ -300,15 +322,39 @@ const BuildingPermitProject = ({
         </FormPanel>
       </Panel>
 
-      <FormPanel visibleWhen={mode === "professional"} context={project} handler={setProject} >
-        <p>Specify full time inspector and supervisor of construction work</p>
-        <ProfessionalLookup onSelect={onSelectProfessional} />
-        <p>{JSON.stringify(professionals)}</p>
+      <Panel visibleWhen={mode === "professional"}>
+        <label>Specify full time inspector and supervisor of construction work</label>
+        <Spacer height={10} />
+        {professional &&
+          <Panel>
+              <Panel style={{display: "flex"}}>
+                <Panel>
+                  <Subtitle2>{`${professional.lastname}, ${professional.firstname} ${professional.middlename}`}</Subtitle2>
+                  <label>{professional.address.text}</label>
+                </Panel>
+                <ProfessionalLookup hideSearchText={true} caption="Search Professional" onSelect={onSelectProfessional} fullWidth={false} />
+              </Panel>
+              <Spacer />
+              <Panel>
+                <Label caption="PRC ID No." value={professional.prcno} />
+                <Label caption="Date Issued" value={professional.prc.dtissued} />
+                <Label caption="Valid Until" value={professional.prc.dtvalid} />
+                <Label caption="Place Issued" value={professional.prc.placeissued} />
+                <Spacer />
+                <Label caption="PTR ID No." value={professional.ptr.refno} />
+                <Label caption="Date Issued" value={professional.ptr.dtissued} />
+                <Label caption="Place Issued" value={professional.ptr.placeissued} />
+              </Panel>
+          </Panel>
+        }
+        {!professional &&
+          <ProfessionalLookup caption="Search Professional" onSelect={onSelectProfessional} fullWidth={false} />
+        }
         <ActionBar>
           <BackLink action={() => setMode("select-occupancytype")} />
-          <Button caption="Next" action={submitProfessionals} />
+          <Button caption="Next" action={submitProfessional} />
         </ActionBar>
-      </FormPanel>
+      </Panel>
     </Panel>
   )
 }
