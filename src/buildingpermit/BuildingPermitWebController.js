@@ -16,6 +16,7 @@ import BuildingPermitInitial from "./BuildingPermitInitial";
 import BuildingPermitApplicant from "./BuildingPermitApplicant";
 import BuildingPermitLocation from "./BuildingPermitLocation";
 import BuildingPermitProject from "./BuildingPermitProject";
+import BuildingPermitOccupancy from "./BuildingPermitOccupancy";
 import BuildingPermitAccessories from "./BuildingPermitAccessories";
 import BuildingPermitOtherPermits from "./BuildingPermitOtherPermits";
 import BuildingPermitConfirm from "./BuildingPermitOtherPermits";
@@ -25,10 +26,11 @@ const pages = [
   { step: 1, name: 'applicant', caption: 'Applicant', component: BuildingPermitApplicant },
   { step: 2, name: 'location', caption: 'Project Location', component: BuildingPermitLocation },
   { step: 3, name: 'project', caption: 'Project Details', component: BuildingPermitProject },
-  { step: 4, name: 'accessories', caption: 'Accessories', component: BuildingPermitAccessories },
-  { step: 5, name: 'ancillarylist', caption: 'Other Permits', component: BuildingPermitOtherPermits },
-  { step: 6, name: 'confirm', caption: 'Confirm', component: BuildingPermitConfirm },
-  { step: 7, name: 'finish', caption: 'Finish', component: BuildingPermitInitial }
+  { step: 4, name: 'project', caption: 'Occupancy Type', component: BuildingPermitOccupancy },
+  { step: 5, name: 'accessories', caption: 'Accessories', component: BuildingPermitAccessories },
+  { step: 6, name: 'ancillarylist', caption: 'Other Permits', component: BuildingPermitOtherPermits },
+  { step: 7, name: 'confirm', caption: 'Confirm', component: BuildingPermitConfirm },
+  { step: 8, name: 'finish', caption: 'Finish', component: BuildingPermitInitial }
 ]
 
 const BuildingPermitWebController = (props) => {

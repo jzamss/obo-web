@@ -64,8 +64,7 @@ const BuildingPermitProject = ({
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   //TOOD: remove mode only
-  // const [mode, setMode] = useState("project-detail");
-  const [mode, setMode] = useState("professional");
+  const [mode, setMode] = useState("project-detail");
   const [occupancyMode, setOccupancyMode] = useState("group");
   const [project, setProject] = useState(initialProject);
   const [occupancyGroups, setOccupancyGroups] = useState([]);
@@ -122,10 +121,9 @@ const BuildingPermitProject = ({
           })
           project.worktypes = workTypes;
         }
+        setProfessional(project.contractor);
         setProject(project);
-        //TODO: remove test mode
-        // setMode("project-detail");
-        setMode("professional");
+        setMode("project-detail");
       }
     });
   }, [])
@@ -139,10 +137,28 @@ const BuildingPermitProject = ({
       loadOccupancyTypes();
   }, [occupancyMode])
 
-
-
   const submitProjectDetail = () => {
-    updateProject("select-worktype");
+    setError(null);
+    const detail = {
+      appid: appno,
+      title: project.title,
+      description: project.description,
+      numunits: project.numunits,
+      totalfloorarea: project.totalfloorarea,
+      height: project.height,
+      numfloors: project.numfloors,
+      projectcost: project.projectcost,
+      dtproposedconstruction: project.dtproposedconstruction,
+      dtexpectedcompletion: project.dtexpectedcompletion,
+    };
+    appService.update(detail, (err, proj) => {
+      if (err) {
+        setError(err);
+      } else {
+        clearStatus();
+        setMode("select-worktype");
+      }
+    });
   }
 
   const validWorkTypes = () => {
@@ -153,7 +169,19 @@ const BuildingPermitProject = ({
   const submitWorkType = () => {
     setError(null);
     if (validWorkTypes()) {
-      updateProject("select-occupancytype");
+      setError(null);
+      const updatedWorkTypes = {
+        appid: appno,
+        worktypes: project.worktypes.filter(wt => wt.checked).map(wt => wt.value),
+      };
+      appService.update(updatedWorkTypes, (err, proj) => {
+        if (err) {
+          setError(error);
+        } else {
+          setMode("professional");
+          setLoading(false);
+        }
+      });
     } else {
       setError("Please check at least one work type.")
     }
@@ -179,46 +207,21 @@ const BuildingPermitProject = ({
     if (!project.occupancytype.objid) {
       setError("Kindly select an occupancy type.")
     } else {
-      let occupancytype = {appid: appno, ...project.occupancytype};
-      const occupancyTypeInfo = occupancyTypes.find(o => o.objid === occupancytype.objid)
-      occupancytype = {...occupancytype, ...occupancyTypeInfo};
-      const updatedProject = {...project, occupancytypeid: occupancytype.objid, occupancytype};
-      setProject(updatedProject);
-      updateProject("professional", updatedProject);
+      let occupancytype = {appid: appno, occupancytype: project.occupancytype};
+      appService.updateOccupancyType(occupancytype, (err, res) => {
+        if (err) {
+          setError(err);
+        } else {
+          clearStatus();
+          moveNextStep();
+        }
+      })
     }
   }
-
-  const updateProject = (newMode, updatedProject = {}) => {
+  const clearStatus = () => {
     setError(null);
-    const proj = {
-      appid: appno,
-      ...project,
-      ...updatedProject,
-      worktypes: project.worktypes.filter(wt => wt.checked).map(wt => wt.value),
-    };
-    appService.update(proj, (err, proj) => {
-      if (err) {
-        setError(error);
-      } else {
-        setMode(newMode);
-        setLoading(false);
-      }
-    });
+    setLoading(false);
   }
-
-  // const updateProject = () => {
-  //   setLoading(true);
-  //   setError(null);
-  //   const updatedProject = {appid: appno, ...project};
-  //   appService.updateProject(updatedProject, (err, proj) => {
-  //     if (err) {
-  //       setError(err);
-  //     } else {
-  //       moveNextStep();
-  //     }
-  //     setLoading(false);
-  //   });
-  // }
 
   const backToOccupancy = () => {
     setMode("select-occupancytype");
@@ -232,7 +235,7 @@ const BuildingPermitProject = ({
     }
 
     const professional = professionals[0];
-    appService.update({appid: appno, appno: appno, contractorid: professional.objid}, (err, app) => {
+    appService.update({appid: appno, contractorid: professional.objid}, (err, app) => {
       if (err) {
         setError(err);
       } else {
@@ -272,7 +275,7 @@ const BuildingPermitProject = ({
           <Date caption="Proposed Construction Date" name="dtproposedconstruction" readOnly={stepCompleted} />
           <Date caption="Expected Completion Date" name="dtexpectedcompletion" readOnly={stepCompleted} />
         </Panel>
-        <ActionBar visibleWhen={!stepCompleted}>
+        <ActionBar>
           <Button caption="Next" action={submitProjectDetail} />
         </ActionBar>
       </FormPanel>
@@ -293,39 +296,10 @@ const BuildingPermitProject = ({
         </ActionBar>
       </FormPanel>
 
-      <Panel visibleWhen={mode === "select-occupancytype"}>
-        <FormPanel visibleWhen={occupancyMode === "group"} context={project} handler={setProject}>
-          <Subtitle2>Select Occupancy Group</Subtitle2>
-          <Radio name="occupancytype.group.objid" list={occupancyGroups} Control={RadioItem}/>
-          <ActionBar>
-            <BackLink action={() => setMode("select-worktype")} />
-            <Button caption="Next" action={submitOccupancyGroup} />
-          </ActionBar>
-        </FormPanel>
-
-        <FormPanel visibleWhen={occupancyMode === "division"} context={project} handler={setProject}>
-          <Subtitle2>Select Occupancy Group Division</Subtitle2>
-          <Radio name="occupancytype.division.objid" list={occupancyDivisions} Control={RadioItem}/>
-          <ActionBar>
-            <BackLink caption="Back" action={() => setOccupancyMode("group")} />
-            <Button caption="Next" action={submitOccupancyDivision} />
-          </ActionBar>
-        </FormPanel>
-
-        <FormPanel visibleWhen={occupancyMode === "type"} context={project} handler={setProject}>
-          <Subtitle2>Select Occupancy Type</Subtitle2>
-          <Radio name="occupancytype.objid" list={occupancyTypes} Control={RadioItem}/>
-          <ActionBar>
-            <BackLink caption="Back" action={() => setOccupancyMode("division")} />
-            <Button caption="Next" action={submitOccupancyType} />
-          </ActionBar>
-        </FormPanel>
-      </Panel>
-
       <Panel visibleWhen={mode === "professional"}>
         <label>Specify full time inspector and supervisor of construction work</label>
         <Spacer height={10} />
-        {professional &&
+        {professional && professional.lastname &&
           <Panel>
               <Panel style={{display: "flex"}}>
                 <Panel>
@@ -347,14 +321,15 @@ const BuildingPermitProject = ({
               </Panel>
           </Panel>
         }
-        {!professional &&
+        {(!professional || !professional.lastname) &&
           <ProfessionalLookup caption="Search Professional" onSelect={onSelectProfessional} fullWidth={false} />
         }
         <ActionBar>
-          <BackLink action={() => setMode("select-occupancytype")} />
+          <BackLink action={() => setMode("select-worktype")} />
           <Button caption="Next" action={submitProfessional} />
         </ActionBar>
       </Panel>
+
     </Panel>
   )
 }

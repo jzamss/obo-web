@@ -24,57 +24,58 @@ const components = {
   "boolean": Checkbox
 }
 
-const BuildingPermitAccessories = (props) => {
-  const { partner, appno, appService, moveNextStep, stepCompleted } = props;
-
+const BuildingPermitAccessories = ({
+  partner,
+  appno,
+  appService,
+  moveNextStep,
+  stepCompleted
+}) => {
   const [error, setError] = useState();
+  const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState("initial");
   const [hasAccessories, setHasAccessories] = useState("TRUE");
-  const [loading, setLoading] = useState(false);
-  const [buildingIsAccessory, setBuildingIsAccessory] = useState(false);
-  const [hasItems, setHasItems] = useState(false);
-  const [accessoryList, setAccessoryList] = useState([]);
-  const [accessoryTypes, setAccessoryTypes] = useState({});
+  const [accessories, setAccessories] = useState([]);
+  const [accessoryTypes, setAccessoryTypes] = useState([]);
   const [occupancyTypes, setOccupancyTypes] = useState([]);
-  const [infos, setInfos] = useState({});
+
+  const isJAccessoryType = (accessories) => {
+    if (accessories.length > 0 && /j.*/i.test(accessories[0].occupancytypeid)) {
+      return true;
+    }
+    return false;
+  }
 
   const loadAccessories = () => {
     appService.getAccessories({appid: appno}, (err, accessories) => {
-      if (accessories && accessories.length > 0) {
-        const infos = {};
-        accessories.forEach(ac => {
-          if( ac.app.occupancytypeid == ac.occupancytypeid ) {
-            setBuildingIsAccessory(true);
-            ac.infos.forEach(info => {
-              infos[info.name.toLowerCase()] = info.value;
-            });
-          }
-        });
-        setAccessoryList(accessories);
-        setInfos(infos);
-        setHasItems(true);
+      setAccessories(accessories);
+      if (isJAccessoryType(accessories)) {
+        setMode("infos")
+      }
+    });
+  }
+
+  const loadAccessoryOccupancyTypes = () => {
+    const svc = Service.lookup("OboMiscListService", "obo");
+    svc.getAccessoryOccupancyTypes((err, occupancyTypes) => {
+      if (err) {
+        setError(err);
       } else {
-        const svc = Service.lookup("OboMiscListService", "obo");
-        svc.getAccessoryOccupancyTypes((err, occupancyTypes) => {
-          if (err) {
-            setError(err);
-          } else {
-            const accessoryTypes = {};
-            occupancyTypes.forEach(ot => {
-              accessoryTypes[`${ot.objid.toLowerCase()}`] = false;
-            });
-            setOccupancyTypes(occupancyTypes);
-            setAccessoryTypes(accessoryTypes);
-            setHasItems(false);
-          }
+        const accessoryTypes = {};
+        occupancyTypes.forEach(ot => {
+          accessoryTypes[`${ot.objid.toLowerCase()}`] = false;
         });
+        setOccupancyTypes(occupancyTypes);
+        setAccessoryTypes(accessoryTypes);
       }
     });
   }
 
   useEffect(() => {
+    loadAccessoryOccupancyTypes();
     loadAccessories();
   }, []);
+
 
   const submitInitial = () => {
 		if (hasAccessories === "TRUE") {
@@ -84,7 +85,23 @@ const BuildingPermitAccessories = (props) => {
 		}
   }
 
-  const saveAccessories = () => {
+  const submitAccessoryTypes = () => {
+    if (Object.keys(accessoryTypes).length > 0) {
+      const accessories = getSelectedAccessoryTypes();
+      appService.saveAccessories(accessories, (err, accessories) => {
+        if (err) {
+          setError(err);
+        } else {
+          loadAccessories();
+          setMode("infos");
+        }
+      });
+    } else {
+      setError("Select at least one accessory type before proceeding.")
+    }
+  }
+
+  const getSelectedAccessoryTypes = () => {
 		const items = [];
     const deleted = [];
     for (const prop in accessoryTypes) {
@@ -100,52 +117,27 @@ const BuildingPermitAccessories = (props) => {
 			const p = {};
 			p.appid = appno;
 			p.items = items;
-			p.deleted = deleted;
-			appService.saveAccessories(p, (err, res) => {
-        if (err) setError(err);
-      });
+      p.deleted = deleted;
+      return p;
 		}
 		else {
 			if( deleted.length > 0 ) {
-				var p = {};
+				const p = {};
 				p.appid = appno;
 				p.items = [];
 				p.deleted = deleted;
-				appService.saveAccessories(p, (err, res) => {
-          if (err) setError(err);
-        });
+				return p;
 			}
 		}
   }
 
-  const submitAccessoryTypes = () => {
-    if (Object.keys(accessoryTypes).length > 0) {
-      saveAccessories();
-      loadAccessories();
-      setMode("infos")
-    } else {
-      setError("Select at least one accessory type before proceeding.")
-    }
-  }
+  const saveAccesoryInfos = () => {
+		var p = {appid: appno, infos: []};
+    p.infos = [];
+    accessories.forEach(accessory => {
+      p.infos.push(...accessory.infos);
+    });
 
-  const redoSelection = () => {
-    const isRedo = confirm("Unchecking will remove the accessory information already encoded. Continue anyway?");
-    if (isRedo) {
-      const deleted = [];
-      accessoryList.forEach(o => {
-        deleted.push(`${o.occupancytypeid}`);
-      });
-      appService.saveAccessories({appid: appno, deleted});
-      loadAccessories();
-    }
-  }
-
-	const saveAccesoryInfos = () => {
-		var p = {appid: appno};
-		p.infos = [];
-		for(const prop in infos) {
-			p.infos.push( {name: prop, value: infos[prop] } );
-		}
 		appService.saveAccessoryInfos(p, (err, res) => {
       if (err) {
         setError(err)
@@ -185,22 +177,22 @@ const BuildingPermitAccessories = (props) => {
         </ActionBar>
       </Panel>
 
-      <FormPanel visibleWhen={mode === "infos"} context={infos} handler={setInfos}>
-        {accessoryList.map(o => {
+      <FormPanel visibleWhen={mode === "infos"} context={accessories} handler={setAccessories}>
+        {accessories.map((o, ix) => {
           return (
             <div key={o.objid}>
               <Label style={styles.infoTitle}>{o.type.title}</Label>
-              {o.infos.map(info => {
+              {o.infos.map((info, iy) => {
                 const InfoComponent = components[info.datatype];
                 return (
                   <div style={styles.infoContainer}>
                     <label>{`${info.caption.toLowerCase()} (${info.unit.toLowerCase()})`}</label>
                     <InfoComponent
-                      name={info.name.toLowerCase()}
+                      name={`[${ix}].infos[${iy}].value`}
                       fullWidth={false}
                       variant="outlined"
                       size="small"
-                      width={150}
+                      width={120}
                       style={{flexBasis: 100}}
                     />
                   </div>
@@ -209,7 +201,7 @@ const BuildingPermitAccessories = (props) => {
             </div>
           )
         })}
-        <ActionBar visibleWhen={!stepCompleted}>
+        <ActionBar>
           <BackLink action={() => setMode("select-accessories")}  />
           <Button caption="Next" action={saveAccesoryInfos} />
         </ActionBar>

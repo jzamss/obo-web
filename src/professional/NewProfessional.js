@@ -21,7 +21,7 @@ const NewProfessional = ({
 
   const initialProfessional = {
     entity: {...info, resident: true},
-    prc: {idno: info.prcno},
+    prc: info.prc,
     resident: true
   }
 
@@ -43,12 +43,12 @@ const NewProfessional = ({
       <Panel>
         <FormPanel context={professional} handler={setProfessional}>
           <p>Please fill in the necessary data below. Text marked with * are required fields. </p>
-          <Text caption="Profession" name="entity.profession.title" readOnly={true} />
+          <Text caption="Profession" name="entity.profession" readOnly={true} />
           <Person name="entity" person={professional} showAddress={true} orgcode={partner.id} showExtended={true} />
           <Spacer />
-          <IdEntry caption="Identification" name="id" />
           <PrcCard name="prc" disableIdNo={true} />
           <PtrCard name="ptr" />
+          <IdEntry caption="Primary Identification" name="id" />
           <ActionBar>
             <Button caption="Next" action={submitHandler} />
           </ActionBar>

@@ -34,7 +34,7 @@ const Initial = ({
   const [professionList, setProfessionList] = useState([]);
 
   useEffect(() => {
-    svc.getProfessionList({}, (err, list) => {
+    svc.getProfessionList((err, list) => {
       setProfessionList(list);
     })
   }, []);
@@ -50,6 +50,7 @@ const Initial = ({
       if (err) {
         handleError(err)
       } else {
+        setError(null);
         setKey(res.key);
         setMode("verify");
       }
@@ -62,8 +63,8 @@ const Initial = ({
         <Subtitle>Please specify initial information</Subtitle>
         <Spacer />
         <Error msg={error} />
-        <Text name="prcno" caption="PRC No." required />
-        <ProfessionList caption="Profession (Copy profession in the PRC card" name="profession" expr={item => item.title} professions={professionList} required={true} />
+        <Text name="prc.idno" caption="PRC No." required />
+        <ProfessionList caption="Profession (Copy profession in the PRC card" name="profession" expr={item => item} professions={professionList} required={true} />
         <Email name="email" required />
         <Mobileno name="mobileno" required />
         <ActionBar>

@@ -35,7 +35,6 @@ const ProfessionalLookup = ({
   const fetchList = (params) => {
       if (svc) {
         const p = {...query, ...params};
-        console.log("P", p)
         svc.getList(p, (err, list) => {
           setProfessionals(list);
         });
@@ -75,7 +74,7 @@ const ProfessionalLookup = ({
           keyId="objid"
           onSelectItems={onSelectItems}
         >
-          <TableColumn caption='PRC' expr='prcno' />
+          <TableColumn caption='PRC' expr='prc.ino' />
           <TableColumn caption='Name' expr={item => `${item.lastname}, ${item.firstname} ${item.middlename}`} />
           <TableColumn caption='Profession' expr='profession' />
         </Table>

@@ -64,8 +64,7 @@ const ProfessionalWebController = (props) => {
       address.province = partner.province || "PROVINCE";
     }
     const entity = {...professional.entity, address};
-    const profession = {...professional.profession};
-    const prof = {...entity, ...professional, profession: profession.name };
+    const prof = {...entity, ...professional};
     delete prof.entity;
     return prof;
   }
@@ -107,6 +106,7 @@ const ProfessionalWebController = (props) => {
           <Disclaimer partner={partner} onCancel={movePrevStep} onSubmit={saveProfessional} />
         </Panel>
       </Card>
+      <p>{JSON.stringify(info, null, 2)}</p>
     </Page>
   )
 }
