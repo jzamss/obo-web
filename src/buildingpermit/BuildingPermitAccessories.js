@@ -81,7 +81,14 @@ const BuildingPermitAccessories = ({
 		if (hasAccessories === "TRUE") {
 			setMode("select-accessories");
 		} else {
-			moveNextStep();
+      setError(null);
+      appService.saveAccessories({appid: appno, items: []}, (err, res) => {
+        if (err) {
+          setError(err);
+        } else {
+          moveNextStep();
+        }
+      });
 		}
   }
 
@@ -103,32 +110,12 @@ const BuildingPermitAccessories = ({
 
   const getSelectedAccessoryTypes = () => {
 		const items = [];
-    const deleted = [];
     for (const prop in accessoryTypes) {
       if (accessoryTypes[prop]) {
 				items.push(prop);
 			}
-			else {
-				deleted.push(prop);
-			}
     }
-
-		if( items.length > 0 ) {
-			const p = {};
-			p.appid = appno;
-			p.items = items;
-      p.deleted = deleted;
-      return p;
-		}
-		else {
-			if( deleted.length > 0 ) {
-				const p = {};
-				p.appid = appno;
-				p.items = [];
-				p.deleted = deleted;
-				return p;
-			}
-		}
+    return { appid: appno, items }
   }
 
   const saveAccesoryInfos = () => {

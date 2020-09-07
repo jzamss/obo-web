@@ -106,7 +106,6 @@ const ProfessionalWebController = (props) => {
           <Disclaimer partner={partner} onCancel={movePrevStep} onSubmit={saveProfessional} />
         </Panel>
       </Card>
-      <p>{JSON.stringify(info, null, 2)}</p>
     </Page>
   )
 }

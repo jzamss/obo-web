@@ -44,10 +44,10 @@ const BuildingPermitInitial = (props) => {
   const { partner, service, handler, history, onCancel } = props
   const step = steps[activeStep];
 
-  useEffect(() => {
-    const hash = steps[activeStep].name;
-    // props.history.push({hash});
-  }, [activeStep])
+  // useEffect(() => {
+  //   const hash = steps[activeStep].name;
+  //   // props.history.push({hash});
+  // }, [activeStep])
 
   const moveNextStep = () => {
     setActiveStep(cs => cs + 1);

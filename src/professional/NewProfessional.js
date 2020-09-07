@@ -44,7 +44,7 @@ const NewProfessional = ({
         <FormPanel context={professional} handler={setProfessional}>
           <p>Please fill in the necessary data below. Text marked with * are required fields. </p>
           <Text caption="Profession" name="entity.profession" readOnly={true} />
-          <Person name="entity" person={professional} showAddress={true} orgcode={partner.id} showExtended={true} />
+          <Person name="entity" person={professional} showAddress={true} orgcode={partner.id} />
           <Spacer />
           <PrcCard name="prc" disableIdNo={true} />
           <PtrCard name="ptr" />

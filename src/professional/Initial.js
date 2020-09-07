@@ -87,7 +87,6 @@ const Initial = ({
           width={200}
         />
       </Panel>
-      <p>{key}</p>
     </React.Fragment>
   );
 }

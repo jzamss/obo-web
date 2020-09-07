@@ -49,7 +49,6 @@ const VerifyEmail = ({
         onCancel={() => setMode("init")}
         onVerified={moveNextStep}
       />
-      <p>{key}</p>
     </React.Fragment>
   );
 }

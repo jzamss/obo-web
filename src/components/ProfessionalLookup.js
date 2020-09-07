@@ -55,6 +55,7 @@ const ProfessionalLookup = ({
         onSelect={onAcceptLookup}
         fetchList={fetchList}
         hideSearchText={hideSearchText}
+        enableSelect={selectedItems && selectedItems.length > 0}
       >
         <FormPanel context={query} handler={setQuery}>
           <Text caption='PRC No.' name='prc.idno' width={200} fullWidth={false} variant='outlined' />
@@ -74,7 +75,7 @@ const ProfessionalLookup = ({
           keyId="objid"
           onSelectItems={onSelectItems}
         >
-          <TableColumn caption='PRC' expr='prc.ino' />
+          <TableColumn caption='PRC' expr='prc.idno' />
           <TableColumn caption='Name' expr={item => `${item.lastname}, ${item.firstname} ${item.middlename}`} />
           <TableColumn caption='Profession' expr='profession' />
         </Table>

@@ -90,6 +90,10 @@ const BuildingPermitLocation = (props) => {
     setMode("view-rpus");
   }
 
+  const editOwner = () => {
+
+  }
+
   const editOwnerInfo = props => {
     if(property.bill !== null && property.bill.amtdue != null &&  property.bill.amtdue > 0 ) {
       setError("Please settle all unpaid balances first before proceeding");
@@ -139,11 +143,6 @@ const BuildingPermitLocation = (props) => {
         moveNextStep();
       }
     })
-  }
-
-  const editOwner = (rpu) => {
-    //TODO;
-    // findProperty("edit-owner-info", rpu.tdno );
   }
 
   const deleteRpu = (rpu) => {

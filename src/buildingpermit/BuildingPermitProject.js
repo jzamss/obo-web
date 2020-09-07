@@ -22,6 +22,7 @@ import {
 } from "rsi-react-web-components";
 
 import ProfessionalLookup from "../components/ProfessionalLookup";
+import ProfessionalCard from "../components/ProfessionalCard";
 
 const svc = Service.lookup("OboMiscListService", "obo");
 
@@ -301,6 +302,12 @@ const BuildingPermitProject = ({
         <Spacer height={10} />
         {professional && professional.lastname &&
           <Panel>
+            <ProfessionalCard
+              caption="Inspector/Supervisor"
+              professional={professional}
+              onSelectProfessional={onSelectProfessional}
+            />
+            {/**
               <Panel style={{display: "flex"}}>
                 <Panel>
                   <Subtitle2>{`${professional.lastname}, ${professional.firstname} ${professional.middlename}`}</Subtitle2>
@@ -319,6 +326,7 @@ const BuildingPermitProject = ({
                 <Label caption="Date Issued" value={professional.ptr.dtissued} />
                 <Label caption="Place Issued" value={professional.ptr.placeissued} />
               </Panel>
+             */}
           </Panel>
         }
         {(!professional || !professional.lastname) &&
