@@ -106,10 +106,6 @@ const BuildingPermitOtherPermits = ({
     }
   }
 
-  const submitPermits = () => {
-
-  }
-
   const editPermit = (o) => {
     appService.getAncillaryPermit({objid: o.objid}, (err, permit) => {
       if (err) {
@@ -159,8 +155,25 @@ const BuildingPermitOtherPermits = ({
         setError(err);
       } else {
         setMode("permit-list");
+        moveNextStep();
       }
     })
+  }
+
+  const submitAncillaryPermits = () => {
+    const incompletePermits = [];
+    ancillaryPermits.forEach(permit => {
+      if (!permit.designprofessionalid) {
+        incompletePermits.push(permit.type.title);
+      }
+    })
+    if (incompletePermits.length === 1) {
+      setError(`Permit ${incompletePermits[0]} is not processed`);
+    } else if (incompletePermits.length > 1) {
+      setError(`The following permist are not processed: ${incompletePermits.join(",")}`);
+    } else {
+      moveNextStep();
+    }
   }
 
   return (
@@ -186,7 +199,6 @@ const BuildingPermitOtherPermits = ({
       </Panel>
 
       <Panel visibleWhen={mode === "permit-list"}>
-        <Subtitle2>Permit Types</Subtitle2>
         <Spacer />
         {ancillaryPermits.map(permit => (
           <Panel style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
@@ -209,7 +221,7 @@ const BuildingPermitOtherPermits = ({
         ))}
         <ActionBar>
           <BackLink caption="Add New Permits" action={() => setMode("available-list")} />
-          <Button caption="Next" action={submitPermits} />
+          <Button caption="Next" action={submitAncillaryPermits} />
         </ActionBar>
       </Panel>
 

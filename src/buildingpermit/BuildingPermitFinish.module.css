@@ -1,0 +1,13 @@
+.bldgPermitFinish {
+  background-color: powderblue;
+}
+
+.bldgPermitFinish > p {
+  color: palegoldenrod;
+}
+
+.bldgPermitFinish__info > li {
+  font-size: 20;
+  color: yellow;
+  border-bottom: 1px solid red;
+}
