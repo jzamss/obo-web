@@ -243,6 +243,8 @@ const BuildingPermitOtherPermits = ({
     }
   }
 
+  let prevInfo = null;
+
   return (
     <Panel>
       <Subtitle>Other Permits</Subtitle>
@@ -276,7 +278,6 @@ const BuildingPermitOtherPermits = ({
         </ActionBar>
       </Panel>
 
-
       <FormPanel visibleWhen={mode === "select-worktypes"} context={ancillaryPermit} handler={setAncillaryPermit} >
         <h4>{ancillaryPermit.type.title}</h4>
         <Subtitle2>Select Work Type</Subtitle2>
@@ -300,18 +301,26 @@ const BuildingPermitOtherPermits = ({
         <p>Please fill the applicable values and click Save and Complete when done.</p>
         {ancillaryPermit.infos && ancillaryPermit.infos.map((info, ix) => {
           const InfoComponent = components[info.datatype];
+          let categoryComp = null;
+          if (prevInfo === null || prevInfo.category !== info.category) {
+            categoryComp = <Label style={styles.category}>{info.category}</Label>
+            prevInfo = info;
+          }
           return (
-            <div style={styles.infoContainer}>
-              <label>{`${info.caption.toLowerCase()} (${info.unit.toLowerCase()})`}</label>
-              <InfoComponent
-                name={`infos[${ix}].value`}
-                fullWidth={false}
-                variant="outlined"
-                size="small"
-                width={120}
-                style={{flexBasis: 100}}
-              />
-            </div>
+            <Panel>
+              {categoryComp}
+              <div style={styles.infoContainer}>
+                <label>{`${info.caption.toLowerCase()} (${info.unit.toLowerCase()})`}</label>
+                <InfoComponent
+                  name={`infos[${ix}].value`}
+                  fullWidth={false}
+                  variant="outlined"
+                  size="small"
+                  width={120}
+                  style={{flexBasis: 100}}
+                />
+              </div>
+            </Panel>
           )
         })}
         <ActionBar>
@@ -391,6 +400,14 @@ const styles = {
     flexDirection: "column",
     marginLeft: 20,
   },
+  category: {
+    fontSize: 16,
+    fontWeight: 600,
+    border: "1px solid #aaa",
+    backgroundColor: "#eee",
+    padding: "2px 10px",
+    margin: "10px 0px"
+  }
 }
 
 
