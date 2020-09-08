@@ -130,8 +130,7 @@ const BuildingPermitOccupancy = ({
     if (!project.occupancytype.objid) {
       setError("Kindly select an occupancy type.")
     } else {
-      // updateOccupancyType();
-      setShowConfirm(true);
+      updateOccupancyType();
     }
   }
   const clearStatus = () => {

@@ -52,7 +52,7 @@ const BuildingPermitOtherPermits = ({
   const [mode, setMode] = useState("permit-list");
   const [availableAncillaryPermits, setAvailableAncillaryPermits] = useState([]);
   const [ancillaryPermits, setAncillaryPermits] = useState([]);
-  const [ancillaryPermit, setAncillaryPermit] = useState({worktypes:[]});
+  const [ancillaryPermit, setAncillaryPermit] = useState({worktypes:[], type:{}});
 
   const loadAvailableAccillaryPermits = () => {
     appService.getAvailableAncillaryPermitTypes({appid: appno}, (err, list) => {
@@ -278,6 +278,7 @@ const BuildingPermitOtherPermits = ({
 
 
       <FormPanel visibleWhen={mode === "select-worktypes"} context={ancillaryPermit} handler={setAncillaryPermit} >
+        <h4>{ancillaryPermit.type.title}</h4>
         <Subtitle2>Select Work Type</Subtitle2>
         <Panel style={styles.workTypeContainer}>
           {ancillaryPermit.worktypes.map((worktype, idx) => (

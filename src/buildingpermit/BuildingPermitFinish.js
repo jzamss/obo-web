@@ -77,6 +77,12 @@ const BuildingPermitFinish = ({
                   action={() => viewPermit(permit)}
                   iconStyle={{ color: 'green' }}
                 />
+                <a
+                  href="http://192.168.1.9:85/reports/obo/electricalpermit?refid=OBOBPANC101b489f:17467153eef:-8000"
+                  target="_blank"
+                >
+                  View Report
+                </a>
               </div>
             ))}
           </Panel>
