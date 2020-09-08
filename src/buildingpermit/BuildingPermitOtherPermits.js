@@ -21,22 +21,7 @@ import {
 } from "rsi-react-web-components";
 
 import ProfessionalCard from "../components/ProfessionalCard";
-
-const CheckboxInfo = (props) => {
-
-  return (
-    <div style={styles.checkInfo}>
-      <Checkbox {...props} />
-    </div>
-  )
-}
-
-
-const components = {
-  "decimal": Decimal,
-  "integer": Integer,
-  "boolean": CheckboxInfo
-}
+import InfoComponent from "../components/InfoComponent";
 
 const BuildingPermitOtherPermits = ({
   partner,
@@ -300,27 +285,20 @@ const BuildingPermitOtherPermits = ({
         <Spacer />
         <p>Please fill the applicable values and click Save and Complete when done.</p>
         {ancillaryPermit.infos && ancillaryPermit.infos.map((info, ix) => {
-          const InfoComponent = components[info.datatype];
-          let categoryComp = null;
+          let category = null;
           if (prevInfo === null || prevInfo.category !== info.category) {
-            categoryComp = <Label style={styles.category}>{info.category}</Label>
+            category = info.category;
             prevInfo = info;
           }
           return (
-            <Panel>
-              {categoryComp}
-              <div style={styles.infoContainer}>
-                <label>{`${info.caption.toLowerCase()} (${info.unit.toLowerCase()})`}</label>
-                <InfoComponent
-                  name={`infos[${ix}].value`}
-                  fullWidth={false}
-                  variant="outlined"
-                  size="small"
-                  width={120}
-                  style={{flexBasis: 100}}
-                />
-              </div>
-            </Panel>
+            <InfoComponent
+              key={`${info.name}:${ix}`}
+              name={`infos[${ix}].value`}
+              category={category}
+              dataType={info.datatype}
+              caption={info.caption}
+              unit={info.unit}
+            />
           )
         })}
         <ActionBar>
@@ -380,34 +358,11 @@ const styles = {
     display: "flex",
     flexDirection: "column"
   },
-  infoContainer: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginLeft: 20,
-  },
-  checkInfo: {
-    width: 100,
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#aaa",
-    borderRadius: 3,
-  },
   workTypeContainer: {
     display: "flex",
     flexDirection: "column",
     marginLeft: 20,
   },
-  category: {
-    fontSize: 16,
-    fontWeight: 600,
-    border: "1px solid #aaa",
-    backgroundColor: "#eee",
-    padding: "2px 10px",
-    margin: "10px 0px"
-  }
 }
 
 

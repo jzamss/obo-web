@@ -18,11 +18,7 @@ import {
   BackLink
 } from "rsi-react-web-components";
 
-const components = {
-  "decimal": Decimal,
-  "integer": Integer,
-  "boolean": Checkbox
-}
+import InfoComponent from "../components/InfoComponent";
 
 const BuildingPermitAccessories = ({
   partner,
@@ -170,19 +166,14 @@ const BuildingPermitAccessories = ({
             <div key={o.objid}>
               <Label style={styles.infoTitle}>{o.type.title}</Label>
               {o.infos.map((info, iy) => {
-                const InfoComponent = components[info.datatype];
                 return (
-                  <div style={styles.infoContainer}>
-                    <label>{`${info.caption.toLowerCase()} (${info.unit.toLowerCase()})`}</label>
-                    <InfoComponent
-                      name={`[${ix}].infos[${iy}].value`}
-                      fullWidth={false}
-                      variant="outlined"
-                      size="small"
-                      width={120}
-                      style={{flexBasis: 100}}
-                    />
-                  </div>
+                  <InfoComponent
+                    key={`${info.name}:${ix}:${iy}`}
+                    name={`[${ix}].infos[${iy}].value`}
+                    dataType={info.datatype}
+                    caption={info.caption}
+                    unit={info.unit}
+                  />
                 )
               })}
             </div>
