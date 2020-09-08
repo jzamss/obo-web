@@ -16,7 +16,8 @@ import {
   Label,
   Decimal,
   Integer,
-  CheckIcon
+  CheckIcon,
+  Service
 } from "rsi-react-web-components";
 
 import ProfessionalCard from "../components/ProfessionalCard";
@@ -51,7 +52,7 @@ const BuildingPermitOtherPermits = ({
   const [mode, setMode] = useState("permit-list");
   const [availableAncillaryPermits, setAvailableAncillaryPermits] = useState([]);
   const [ancillaryPermits, setAncillaryPermits] = useState([]);
-  const [ancillaryPermit, setAncillaryPermit] = useState({});
+  const [ancillaryPermit, setAncillaryPermit] = useState({worktypes:[]});
 
   const loadAvailableAccillaryPermits = () => {
     appService.getAvailableAncillaryPermitTypes({appid: appno}, (err, list) => {
@@ -106,14 +107,31 @@ const BuildingPermitOtherPermits = ({
     }
   }
 
+  const loadPermitWorkTypes = (permit) => {
+    const svc = Service.lookup("OboMiscListService", "obo");
+    svc.getWorkTypes({typeid: permit.type.objid}, (err, workTypes) => {
+      if (err) {
+        setError(err);
+      } else {
+        console.log("workTypes", workTypes);
+        workTypes.forEach(wt => {
+          if (permit.worktypes.findIndex(pwt => pwt.toLowerCase() === wt.name.toLowerCase()) >= 0) {
+            wt.checked = true;
+          }
+        })
+        setAncillaryPermit({...permit, worktypes: workTypes});
+        setMode("select-worktypes");
+      }
+    })
+  }
+
   const editPermit = (o) => {
     appService.getAncillaryPermit({objid: o.objid}, (err, permit) => {
       if (err) {
         setError(err);
       } else {
         setError(null);
-        setAncillaryPermit(permit);
-        setMode("professional");
+        loadPermitWorkTypes(permit);
       }
     })
   }
@@ -129,6 +147,32 @@ const BuildingPermitOtherPermits = ({
     });
   }
 
+  const validWorkTypes = () => {
+    const idx = ancillaryPermit.worktypes.findIndex(wt => wt.checked === true);
+    return idx >= 0;
+  }
+
+  const submitWorkType = () => {
+    setError(null);
+    if (validWorkTypes()) {
+      setError(null);
+      const updatedWorkTypes = {
+        objid: ancillaryPermit.objid,
+        worktypes: ancillaryPermit.worktypes.filter(wt => wt.checked).map(wt => wt.name)
+      };
+      appService.updateAncillaryPermit(updatedWorkTypes, (err, proj) => {
+        if (err) {
+          setError(error);
+        } else {
+          setMode("infos");
+          setLoading(false);
+        }
+      });
+    } else {
+      setError("Please check at least one work type.")
+    }
+  }
+
   const onSelectDesignProfessional = (professionals) => {
     setAncillaryPermit({...ancillaryPermit, designprofessional: professionals[0]});
   }
@@ -137,25 +181,38 @@ const BuildingPermitOtherPermits = ({
     setAncillaryPermit({...ancillaryPermit, supervisor: professionals[0]});
   }
 
-  const submitProfessional = () => {
-    //TODO: validate professionals
-    setError(null);
-    if (!ancillaryPermit.designprofessionalid) {
-      setError("Design Professional is required.");
-    }
-    if (!ancillaryPermit.supervisorid) {
-      setError("Supervisor is required.");
-    }
-    setMode("infos")
+  const submitInfos = () => {
+    const updatedInfos = {objid: ancillaryPermit.objid, infos: ancillaryPermit.infos }
+    appService.updateAncillaryPermit(updatedInfos, (err, _) => {
+      if (err) {
+        setError(err);
+      } else {
+        setMode("professional");
+      }
+    })
   }
 
   const savePermit = () => {
-    appService.saveAncillaryPermit(ancillaryPermit, (err, _) => {
+    setError(null);
+    if (!ancillaryPermit.designprofessionalid) {
+      setError("Design Professional is required.");
+      return;
+    }
+    if (!ancillaryPermit.supervisorid) {
+      setError("Supervisor is required.");
+      return;
+    }
+
+    const updatedPermit = {
+      ...ancillaryPermit,
+      worktypes: ancillaryPermit.worktypes.filter(wt => wt.checked).map(wt => wt.name)
+    }
+
+    appService.saveAncillaryPermit(updatedPermit, (err, _) => {
       if (err) {
         setError(err);
       } else {
         setMode("permit-list");
-        moveNextStep();
       }
     })
   }
@@ -181,22 +238,6 @@ const BuildingPermitOtherPermits = ({
       <Subtitle>Other Permits</Subtitle>
       <Spacer />
       <Error msg={error} />
-
-      <Panel visibleWhen={mode === "available-list"}>
-        <Subtitle2>Select ancillary and other permits to include in the project</Subtitle2>
-        <FormPanel
-          context={availableAncillaryPermits}
-          handler={setAvailableAncillaryPermits}
-          style={styles.itemsContainer}
-        >
-          {availableAncillaryPermits.map((permit,idx) =>
-            <Checkbox key={permit.objid} caption={permit.title} name={`[${idx}].selected`} />
-          )}
-        </FormPanel>
-        <ActionBar>
-          <Button caption="Next" action={submitSelectedAncillaryPermits} />
-        </ActionBar>
-      </Panel>
 
       <Panel visibleWhen={mode === "permit-list"}>
         <Spacer />
@@ -225,23 +266,20 @@ const BuildingPermitOtherPermits = ({
         </ActionBar>
       </Panel>
 
-      <FormPanel visibleWhen={mode === "professional"} context={ancillaryPermit} handler={setAncillaryPermit}>
-        <Subtitle2>{ancillaryPermit.type?.title}</Subtitle2>
-        <Spacer />
-        <ProfessionalCard
-          caption="Design Professional"
-          professional={ancillaryPermit.designprofessional}
-          onSelectProfessional={onSelectDesignProfessional}
-        />
-        <Spacer />
-        <ProfessionalCard
-          caption="Supervisor in Charge Professional"
-          professional={ancillaryPermit.supervisor}
-          onSelectProfessional={onSelectSupervisor}
-        />
+
+      <FormPanel visibleWhen={mode === "select-worktypes"} context={ancillaryPermit} handler={setAncillaryPermit} >
+        <Subtitle2>Select Work Type</Subtitle2>
+        <Panel style={styles.workTypeContainer}>
+          {ancillaryPermit.worktypes.map((worktype, idx) => (
+            <Checkbox
+              caption={worktype.name.toUpperCase()}
+              name={`worktypes[${idx}].checked`}
+              value={worktype.name} />
+          ))}
+        </Panel>
         <ActionBar>
           <BackLink action={() => setMode("permit-list")} />
-          <Button caption="Next" action={submitProfessional} />
+          <Button caption="Next" action={submitWorkType} />
         </ActionBar>
       </FormPanel>
 
@@ -266,7 +304,43 @@ const BuildingPermitOtherPermits = ({
           )
         })}
         <ActionBar>
-          <BackLink action={() => setMode("professional")}  />
+          <BackLink action={() => setMode("select-worktypes")}  />
+          <Button caption="Next" action={submitInfos} />
+        </ActionBar>
+      </FormPanel>
+
+      <Panel visibleWhen={mode === "available-list"}>
+        <Subtitle2>Select ancillary and other permits to include in the project</Subtitle2>
+        <FormPanel
+          context={availableAncillaryPermits}
+          handler={setAvailableAncillaryPermits}
+          style={styles.itemsContainer}
+        >
+          {availableAncillaryPermits.map((permit,idx) =>
+            <Checkbox key={permit.objid} caption={permit.title} name={`[${idx}].selected`} />
+          )}
+        </FormPanel>
+        <ActionBar>
+          <Button caption="Next" action={submitSelectedAncillaryPermits} />
+        </ActionBar>
+      </Panel>
+
+      <FormPanel visibleWhen={mode === "professional"} context={ancillaryPermit} handler={setAncillaryPermit}>
+        <Subtitle2>{ancillaryPermit.type?.title}</Subtitle2>
+        <Spacer />
+        <ProfessionalCard
+          caption="Design Professional"
+          professional={ancillaryPermit.designprofessional}
+          onSelectProfessional={onSelectDesignProfessional}
+        />
+        <Spacer />
+        <ProfessionalCard
+          caption="Supervisor in Charge Professional"
+          professional={ancillaryPermit.supervisor}
+          onSelectProfessional={onSelectSupervisor}
+        />
+        <ActionBar>
+          <BackLink action={() => setMode("permit-list")} />
           <Button caption="Save and Complete" action={savePermit} />
         </ActionBar>
       </FormPanel>
@@ -300,8 +374,13 @@ const styles = {
     borderWidth: 1,
     borderColor: "#aaa",
     borderRadius: 3,
-
-  }
+  },
+  workTypeContainer: {
+    display: "flex",
+    flexDirection: "column",
+    marginLeft: 20,
+  },
 }
+
 
 export default BuildingPermitOtherPermits;

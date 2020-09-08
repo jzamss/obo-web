@@ -25,14 +25,6 @@ const RadioItem = ({item}) => {
   )
 }
 
-const initialWorkTypes = [
-  { name: "addition", caption: "ADDITION", value: "ADDITION" },
-  { name: "alteration", caption: "ALTERATION", value: "ALTERATION" },
-  { name: "demolition", caption: "DEMOLITION", value: "DEMOLITION" },
-  { name: "original", caption: "ORIGINAL", value: "ORIGINAL" },
-  { name: "renovation", caption: "RENOVATION", value: "RENOVATION" },
-];
-
 const BuildingPermitOccupancy = ({
   partner,
   appno,
