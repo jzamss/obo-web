@@ -6,14 +6,13 @@ import {
   FormPanel,
   Panel,
   Subtitle,
-  Label,
   Spacer,
   Loading,
-  ViewButton,
   Error,
   Text,
   Decimal,
-  Integer
+  Integer,
+  LinkIcon
 } from 'rsi-react-web-components'
 
 const BuildingPermitConfirm = ({
@@ -152,10 +151,11 @@ const BuildingPermitConfirm = ({
         <h3>Ancillary and Other Permits</h3>
         <Panel visibleWhen={ancillaryPermits.length > 0} style={styles.ancillaryContainer}>
           {ancillaryPermits.map(permit => (
-            <Panel key={permit.objid} style={styles.permitRow}>
-              <Label caption={permit.type.title} />
-              <ViewButton action={() => viewPermit(permit)} iconStyle={{color: "green"}}/>
-            </Panel>
+            <LinkIcon
+                key={permit.objid}
+                title={permit.type.title}
+                href={`/jreports/obo/${permit.permittypeid}permit?refid=${permit.objid}`}
+              />
           ))}
         </Panel>
         <ActionBar>
@@ -174,6 +174,9 @@ const styles = {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+  },
+  permitTitle: {
+    padding: "1px 1px",
   }
 }
 

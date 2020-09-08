@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import styles from  "./BuildingPermitFinish.module.css";
 import {
   Panel,
   Subtitle,
   Spacer,
-  ViewButton
+  ViewButton,
+  LinkIcon,
+  CloudDownloadIcon,
 } from 'rsi-react-web-components'
 
 const BuildingPermitFinish = ({
@@ -58,40 +59,40 @@ const BuildingPermitFinish = ({
   }, [])
 
 
-  const viewPermit = (permit) => {
-
-  }
-
   return (
-    <Panel className={styles.bldgPermitFinish}>
+    <Panel>
       <Subtitle>Congratulations!</Subtitle>
-      <p>You have completed the application. Please click and print the following:</p>
-      <ol className={styles.bldgPermitFinish_info}>
-        <li>Building Permit [Print 4 Copies] [Download Data]</li>
-        <li>Ancillary Permits</li>
-          <Panel visibleWhen={ancillaryPermits.length > 0} style={styles.ancillaryContainer} >
-            {ancillaryPermits.map((permit) => (
-              <div style={styles.permitRow} key={permit.objid}>
-                <label>{permit.type.title}</label>
-                <ViewButton
-                  action={() => viewPermit(permit)}
-                  iconStyle={{ color: 'green' }}
-                />
-                <a
-                  href="http://192.168.1.9:85/reports/obo/electricalpermit?refid=OBOBPANC101b489f:17467153eef:-8000"
-                  target="_blank"
-                >
-                  View Report
-                </a>
-              </div>
-            ))}
+      <Spacer />
+      <label>You have completed the application. Please click and print the following:</label>
+      <ol>
+        <li style={styles.li}>
+          <Panel row>
+            <LinkIcon
+              title="Building Permit [Print 4 Copies]"
+              href={`/jreports/obo/bldgpermit?refid=${appno}`}
+            />
+            <LinkIcon
+              href={`/jreports/download/obo/bldgpermit?refid=${appno}`}
+              Icon={CloudDownloadIcon}
+            />
           </Panel>
-          <li>
-            Please download and print the Building and Ancillary Permit forms, prepare the requirements
-            listed below, and submit at the receiving window of our One-Stop Shop for Construction
-            Permits (OSCP) at the Ground Floor, City of Engineering Office, Miguel Lopez del Legazpi
-            Boulevard, Dapdap, Legazpi City.
-          </li>
+        </li>
+        <li style={styles.li}>Ancillary Permits</li>
+          <Panel visibleWhen={ancillaryPermits.length > 0} style={styles.ancillaryContainer}>
+            {ancillaryPermits.map((permit) =>
+              <LinkIcon
+                key={permit.objid}
+                title={permit.type.title}
+                href={`/jreports/obo/${permit.permittypeid}permit?refid=${permit.objid}`}
+              />
+            )}
+          </Panel>
+        <li style={styles.li}>
+          Please download and print the Building and Ancillary Permit forms, prepare the requirements
+          listed below, and submit at the receiving window of our One-Stop Shop for Construction
+          Permits (OSCP) at the Ground Floor, City of Engineering Office, Miguel Lopez del Legazpi
+          Boulevard, Dapdap, Legazpi City.
+        </li>
       </ol>
       <h4>Checklist of Requirements</h4>
       <p>[Download and Print]</p>
@@ -142,16 +143,13 @@ const BuildingPermitFinish = ({
   )
 }
 
-// const styles = {
-//   ancillaryContainer: {
-//     marginLeft: 20
-//   },
-//   permitRow: {
-//     display: 'flex',
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     height: 30,
-//   }
-// }
-
+const styles = {
+  ancillaryContainer: {
+    margin: "0px 15px",
+    marginBottom: 20,
+  },
+  li: {
+    marginBottom: 20,
+  }
+}
 export default BuildingPermitFinish
