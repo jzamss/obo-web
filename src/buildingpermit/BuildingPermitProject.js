@@ -263,6 +263,9 @@ const BuildingPermitProject = ({
       <FormPanel visibleWhen={mode === "project-detail"} context={project} handler={setProject}>
         <Text caption="Project Title" name="title" required={true} readOnly={stepCompleted} autoFocus={true}/>
         <Text caption="Project Description" name="description" required={true} readOnly={stepCompleted} />
+        {project.occupancytypeid &&
+          <Text caption="Occupancy Type" name="occupancytype.title" required={true} readOnly={stepCompleted} />
+        }
         <Spacer/>
         <Integer caption="No of Units" name="numunits" required={true} readOnly={stepCompleted} />
         <Panel row>
@@ -307,26 +310,6 @@ const BuildingPermitProject = ({
               professional={professional}
               onSelectProfessional={onSelectProfessional}
             />
-            {/**
-              <Panel style={{display: "flex"}}>
-                <Panel>
-                  <Subtitle2>{`${professional.lastname}, ${professional.firstname} ${professional.middlename}`}</Subtitle2>
-                  <label>{professional.address.text}</label>
-                </Panel>
-                <ProfessionalLookup hideSearchText={true} caption="Search Professional" onSelect={onSelectProfessional} fullWidth={false} />
-              </Panel>
-              <Spacer />
-              <Panel>
-                <Label caption="PRC ID No." value={professional.prcno} />
-                <Label caption="Date Issued" value={professional.prc.dtissued} />
-                <Label caption="Valid Until" value={professional.prc.dtvalid} />
-                <Label caption="Place Issued" value={professional.prc.placeissued} />
-                <Spacer />
-                <Label caption="PTR ID No." value={professional.ptr.refno} />
-                <Label caption="Date Issued" value={professional.ptr.dtissued} />
-                <Label caption="Place Issued" value={professional.ptr.placeissued} />
-              </Panel>
-             */}
           </Panel>
         }
         {(!professional || !professional.lastname) &&

@@ -60,7 +60,7 @@ const BuildingPermitApplicant = (props) => {
       if (err) {
         setError(err)
       } else {
-        setEditmode("read");
+        moveNextStep();
       }
       setLoading(false)
     })
@@ -77,7 +77,6 @@ const BuildingPermitApplicant = (props) => {
       <Spacer />
       <Error msg={error} />
       <FormPanel context={applicant} handler={setApplicant} >
-        {/* <Label caption='Profile No'>{applicant.profileno}</Label> */}
         <Combobox items={entityTypes} name='entitytype' caption='Type of Applicant' editable={editmode !== "read"}/>
         <Text caption='Applicant Name' name='name' visibleWhen={applicant.entitytype !== 'INDIVIDUAL'} editable={editmode !== "read"}/>
 

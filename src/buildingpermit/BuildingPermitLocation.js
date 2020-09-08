@@ -156,36 +156,37 @@ const BuildingPermitLocation = (props) => {
     })
   }
 
+  const getAddressText = (item) =>  {
+    const addr = [];
+    if (item.lotno) addr.push(`Lot: ${item.lotno}`);
+    if (item.blockno) addr.push(`Block: ${item.blockno}`);
+    if (item.street) addr.push(`Street: ${item.street}`);
+    if (item.barangay) addr.push(`Barangay: ${item.barangay}`);
+    return addr.join(" ");
+  }
 
   return (
     <Panel>
       <Panel visibleWhen={mode === "view-rpus"}>
         <Subtitle>Project Location</Subtitle>
         <Spacer />
+        <Subtitle2>Lot Information</Subtitle2>
         <Error msg={error} />
-        <Table items={rpus} size="small" showPagination={false} >
-          <TableColumn caption="TD No." expr="tdno" />
-          <TableColumn caption="Title No." expr="titleno" />
-          <TableColumn caption="PIN" expr="pin" />
-          <TableColumn caption="Address" expr={item => {
-            const addr = [];
-            if (item.lotno) addr.push(`Lot: ${item.lotno}`);
-            if (item.blockno) addr.push(`Block: ${item.blockno}`);
-            if (item.street) addr.push(`Street: ${item.street}`);
-            if (item.barangay) addr.push(`Barangay: ${item.barangay}`);
-            return addr.join(" ");
-          }} />
-          <TableColumn caption="Class" expr="classcode" />
-          <TableColumn caption="Area" expr="areasqm" />
-          <TableColumn caption="Owner" expr="owner.name" />
-          <TableColumn>
-            <Panel row>
-              <ViewButton action={()=>{}} size="small" />
-              <EditButton action={editOwner} size="small" />
-              <DeleteButton action={deleteRpu} size="small" />
-            </Panel>
-          </TableColumn>
-        </Table>
+        {rpus.map(rpu => (
+          <Panel style={styles.locationContainer} key={rpu.tdno}>
+            <div style={styles.tdno}>
+              <Subtitle2>TD No. {rpu.tdno}</Subtitle2>
+            </div>
+            <div style={styles.rpuInfoContainer}>
+              <Label caption="Title No.">{rpu.titleno}</Label>
+              <Label caption="PIN">{rpu.pin}</Label>
+              <Label caption="Address">{getAddressText(rpu)}</Label>
+              <Label caption="Class">{rpu.classcode}</Label>
+              <Label caption="Area">{rpu.areasqm}</Label>
+              <Label caption="Owner">{rpu.owner.name}</Label>
+            </div>
+          </Panel>
+        ))}
         <ActionBar>
           <Button caption="Add Lot Info" action={viewInitial} />
           <Button caption="Next" action={viewSpecifyLocation} />
@@ -194,8 +195,8 @@ const BuildingPermitLocation = (props) => {
 
       <Panel visibleWhen={mode === "initial"}>
         <Subtitle>Project Location</Subtitle>
-        <Subtitle2>Specify the Site Location/Property</Subtitle2>
         <Spacer />
+        <Subtitle2>Specify the Site Location/Property</Subtitle2>
         <Error msg={error} />
         <Text caption="Tax Declaration No." value={refno} onChange={setRefno} autoFocus={true} />
         <ActionBar>
@@ -261,9 +262,6 @@ const BuildingPermitLocation = (props) => {
           <Text name='street' caption='Street' />
           <Text name='subdivision' caption='Subdivision' />
           <BarangayList barangays={barangays} name="barangay" caption='Barangay' />
-          {/*
-            <Text name="barangay.name" caption="Barangay" editable={false}/>
-          */}
         </FormPanel>
         <ActionBar>
           <BackLink caption="Back" action={() => setMode("view-rpus")} variant="text" />
@@ -278,6 +276,21 @@ const styles = {
   balanceText: {
     color: "red",
     fontWeight: "bold",
+  },
+  locationContainer: {
+    border: "1px solid #aaa",
+    borderRadius: 5,
+    boxShadow: "0px 5px 7px -7px rgba(0,0,0,0.75)",
+    marginBottom: 10
+  },
+  tdno: {
+    padding: "5px 10px",
+    backgroundColor: "#ddd",
+    borderBottom: "1px solid #aaa",
+    borderRadius: 5,
+  },
+  rpuInfoContainer: {
+    padding: "10px",
   }
 }
 
