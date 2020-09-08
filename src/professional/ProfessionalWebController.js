@@ -6,13 +6,16 @@ import {
   Panel,
   Title,
   Card,
-  Error
+  Error,
+  Content
 } from 'rsi-react-web-components';
+
 
 import { Disclaimer } from "rsi-react-filipizen-components";
 
 import Initial from "./Initial";
 import NewProfessional from "./NewProfessional";
+import Success from "./Success";
 
 const svc = Service.lookup("OboProfessionalService", "obo");
 
@@ -20,6 +23,7 @@ const steps = [
   { step: 1, name: "initial", caption: "Initial" },
   { step: 2, name: "newprofessional", caption: "New Professional" },
   { step: 3, name: "disclaimer", caption: "Disclaimer" },
+  { step: 4, name: "registered", caption: "Registered" },
 ]
 
 const ProfessionalWebController = (props) => {
@@ -33,8 +37,6 @@ const ProfessionalWebController = (props) => {
   const [professional, setProfessional] = useState();
 
   const { partner, service, history } = props;
-
-  console.log("PARTNER", partner);
 
   const handleError = (err) => {
     setLoading(false);
@@ -81,12 +83,10 @@ const ProfessionalWebController = (props) => {
       if (err) {
         handleError(err);
       } else {
-        history.goBack();
+        moveNextStep();
       }
     })
   }
-
-
 
   return (
     <Page>
@@ -104,6 +104,9 @@ const ProfessionalWebController = (props) => {
         </Panel>
         <Panel visibleWhen={activeStep.name === "disclaimer"}>
           <Disclaimer partner={partner} onCancel={movePrevStep} onSubmit={saveProfessional} />
+        </Panel>
+        <Panel visibleWhen={activeStep.name === "registered"}>
+          <Success onClose={() => history.goBack()} />
         </Panel>
       </Card>
     </Page>
