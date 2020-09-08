@@ -16,11 +16,29 @@ import {
 
 const svc = Service.lookup("OboMiscListService", "obo");
 
+const styles = {
+  row: {
+    display: "flex",
+    alignItems: "flex-start",
+  },
+  group: {
+    fontSize: 20,
+    fontWeight: 700,
+    marginRight: 15,
+    paddingTop: 8,
+  }
+}
+
 const RadioItem = ({item}) => {
   return (
     <Panel style={{paddingBottom: 5}}>
-      <Subtitle2>{item.title}</Subtitle2>
-      <label>{item.description}</label>
+      <Panel style={styles.row}>
+        <div style={styles.group}>{item.objid}</div>
+        <Panel>
+          <Subtitle2>{item.title}</Subtitle2>
+          <label>{item.description}</label>
+        </Panel>
+      </Panel>
     </Panel>
   )
 }
