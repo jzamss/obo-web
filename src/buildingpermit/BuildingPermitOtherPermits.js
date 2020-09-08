@@ -174,11 +174,21 @@ const BuildingPermitOtherPermits = ({
   }
 
   const onSelectDesignProfessional = (professionals) => {
-    setAncillaryPermit({...ancillaryPermit, designprofessional: professionals[0]});
+    const professional = professionals[0]
+    setAncillaryPermit({
+      ...ancillaryPermit,
+      designprofessional: professional,
+      designprofessionalid: professional.objid
+    });
   }
 
   const onSelectSupervisor = (professionals) => {
-    setAncillaryPermit({...ancillaryPermit, supervisor: professionals[0]});
+    const professional = professionals[0]
+    setAncillaryPermit({
+      ...ancillaryPermit,
+      supervisor: professional,
+      supervisorid: professional.objid,
+    });
   }
 
   const submitInfos = () => {

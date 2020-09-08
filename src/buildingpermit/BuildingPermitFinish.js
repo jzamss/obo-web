@@ -57,6 +57,11 @@ const BuildingPermitFinish = ({
     loadAncillaryPermits()
   }, [])
 
+
+  const viewPermit = (permit) => {
+
+  }
+
   return (
     <Panel className={styles.bldgPermitFinish}>
       <Subtitle>Congratulations!</Subtitle>

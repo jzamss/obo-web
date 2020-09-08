@@ -146,13 +146,6 @@ const BuildingPermitOccupancy = ({
       <Spacer />
       <Error msg={error} />
 
-      <MsgBox open={showConfirm}
-        onAccept={updateOccupancyType}
-        onCancel={() => setShowConfirm(false)}
-        type="confirm"
-        title="Change Occupancy Type"
-        msg="You are about to change the occupancy type. Any data associated with it would be deleted." />
-
       <Panel visibleWhen={mode === "select-occupancytype"}>
         <FormPanel visibleWhen={occupancyMode === "group"} context={project} handler={setProject}>
           <Subtitle2>Select Occupancy Group</Subtitle2>

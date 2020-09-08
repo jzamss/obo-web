@@ -33,10 +33,15 @@ const ProfessionalLookup = ({
   }
 
   const fetchList = (params) => {
-      if (svc) {
+      if (svc && query.prc.idno ) {
         const p = {...query, ...params};
         svc.getList(p, (err, list) => {
-          setProfessionals(list);
+          if (err) {
+            console.log("ERROR", err)
+          } else {
+            console.log("list", list)
+            setProfessionals(list);
+          }
         });
       }
   }
@@ -58,13 +63,10 @@ const ProfessionalLookup = ({
         enableSelect={selectedItems && selectedItems.length > 0}
       >
         <FormPanel context={query} handler={setQuery}>
-          <Text caption='PRC No.' name='prc.idno' width={200} fullWidth={false} variant='outlined' />
-          <span>or</span>
           <Panel row>
-            <Text caption='Last Name' name='lastname' variant='outlined' />
-            <Text caption='First Name' name='firstname' variant='outlined' />
+            <Text caption='PRC No.' name='prc.idno' width={200} variant='outlined' />
+            <Button caption='Search' action={search} />
           </Panel>
-          <Button caption='Search' action={search} />
         </FormPanel>
         <Table
           items={professionals}
