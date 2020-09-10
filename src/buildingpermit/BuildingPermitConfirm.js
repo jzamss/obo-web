@@ -12,7 +12,11 @@ import {
   Text,
   Decimal,
   Integer,
-  LinkIcon
+  LinkIcon,
+  ButtonLink,
+  Subtitle2,
+  PageviewIcon,
+  CloudDownloadIcon,
 } from 'rsi-react-web-components'
 
 const BuildingPermitConfirm = ({
@@ -91,10 +95,6 @@ const BuildingPermitConfirm = ({
     return worktypes;
   }
 
-  const viewPermit = (permit) => {
-
-  }
-
   const submitConfirmation = () => {
     setConfirm(true);
   }
@@ -115,7 +115,7 @@ const BuildingPermitConfirm = ({
         onAccept={submit}
         onCancel={() => setConfirm(false)}
       />
-      <Error msg={error} />
+      { /* <Error msg={error} /> */}
       <Loading visibleWhen={loading} />
       <p>Please confirm the info and preview each permit application before submitting</p>
       <FormPanel visibleWhen={!loading} context={app} handler={setApp}>
@@ -148,15 +148,27 @@ const BuildingPermitConfirm = ({
           </Panel>
         </Panel>
         <Spacer />
-        <h3>Ancillary and Other Permits</h3>
-        <Panel visibleWhen={ancillaryPermits.length > 0} style={styles.ancillaryContainer}>
-          {ancillaryPermits.map(permit => (
-            <LinkIcon
-                key={permit.objid}
-                title={permit.type.title}
-                href={`/jreports/obo/${permit.permittypeid}permit?refid=${permit.objid}`}
-              />
-          ))}
+        <Panel style={styles.ancillaryContainer}>
+          <Subtitle2 style={styles.label}>Other Permits</Subtitle2>
+          <Panel visibleWhen={ancillaryPermits.length > 0}>
+            {ancillaryPermits.map((permit) =>
+              <Panel style={styles.ancillaryItem}>
+                <label style={{marginLeft: 20}}>{permit.type.title}</label>
+                <Panel row>
+                  <ButtonLink
+                    caption="Preview"
+                    href={`/jreports/obo/${permit.permittypeid}permit?refid=${permit.objid}`}
+                    Icon={PageviewIcon}
+                  />
+                  <ButtonLink
+                    caption="Download"
+                    href={`/jreports/download/obo/${permit.permittypeid}permit?refid=${permit.objid}`}
+                    Icon={CloudDownloadIcon}
+                  />
+                </Panel>
+              </Panel>
+            )}
+          </Panel>
         </Panel>
         <ActionBar>
           <Button caption="Submit" action={submitConfirmation} />
@@ -168,16 +180,18 @@ const BuildingPermitConfirm = ({
 
 const styles = {
   ancillaryContainer: {
-    marginLeft: 20,
+    marginRight: 15,
+    marginBottom: 20,
   },
-  permitRow: {
+  ancillaryItem: {
     display: "flex",
-    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
+    width: "100%",
+    padding: 5,
+    marginRight: 10,
+    border: "1px solid #aaa",
   },
-  permitTitle: {
-    padding: "1px 1px",
-  }
 }
 
 export default BuildingPermitConfirm;

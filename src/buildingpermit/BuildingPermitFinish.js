@@ -3,7 +3,6 @@ import {
   Panel,
   Subtitle,
   Spacer,
-  ViewButton,
   LinkIcon,
   CloudDownloadIcon,
 } from 'rsi-react-web-components'

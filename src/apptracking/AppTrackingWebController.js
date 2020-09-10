@@ -170,7 +170,7 @@ const AppTrackingWebController = (props) => {
           <Subtitle2>Activity Summary</Subtitle2>
           <table style={styles.table}>
               <tr style={styles.trth}>
-                <th style={styles.tableText}>Responsibility</th>
+                <th style={styles.tableText}>Section</th>
                 <th style={styles.tableText}>Name</th>
                 <th style={styles.tableText}>Date Endorsed</th>
                 <th style={styles.tableText}>Duration</th>
@@ -180,8 +180,8 @@ const AppTrackingWebController = (props) => {
                   <tr key={st.objid} style={styles.trth}>
                     <td style={styles.tableText}>{st.typeid}</td>
                     <td style={styles.tableText}>{st.task.title}</td>
-                    <td style={styles.tableText}>{st.task.startdate || "Not yet started"}</td>
-                    <td style={styles.tableText}>{getDuration(st.task.startdate)}  </td>
+                    <td style={styles.tableText}>{st.task.dtcreated || "Not yet started"}</td>
+                    <td style={styles.tableText}>{getDuration(st.task.dtcreated)}  </td>
                   </tr>
                 ))}
               </tbody>

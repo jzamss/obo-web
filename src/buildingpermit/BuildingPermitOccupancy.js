@@ -168,7 +168,6 @@ const BuildingPermitOccupancy = ({
           <Subtitle2>Select Occupancy Group</Subtitle2>
           <Radio name="occupancytype.group.objid" list={occupancyGroups} Control={RadioItem}/>
           <ActionBar>
-            <BackLink action={() => setMode("select-worktype")} />
             <Button caption="Next" action={submitOccupancyGroup} />
           </ActionBar>
         </FormPanel>

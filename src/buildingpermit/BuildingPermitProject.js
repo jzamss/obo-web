@@ -4,7 +4,6 @@ import {
   Button,
   Checkbox,
   Panel,
-  Radio,
   Error,
   Subtitle,
   Subtitle2,
@@ -15,25 +14,10 @@ import {
   Service,
   Integer,
   Decimal,
-  Number,
   Date,
-  Card,
-  Label
 } from "rsi-react-web-components";
 
-import ProfessionalLookup from "../components/ProfessionalLookup";
-import ProfessionalCard from "../components/ProfessionalCard";
-
 const svc = Service.lookup("OboMiscListService", "obo");
-
-const RadioItem = ({item}) => {
-  return (
-    <Panel style={{paddingBottom: 5}}>
-      <Subtitle2>{item.title}</Subtitle2>
-      <label>{item.description}</label>
-    </Panel>
-  )
-}
 
 const initialWorkTypes = [
   { name: "addition", caption: "ADDITION", value: "ADDITION" },
@@ -54,6 +38,8 @@ const BuildingPermitProject = ({
     appid: appno,
     apptype: "NEW",
     worktypes: initialWorkTypes,
+    numfloors: 1,
+    numunits: 1,
     occupancytype: {
       objid: null,
       group: {},
@@ -179,8 +165,8 @@ const BuildingPermitProject = ({
         if (err) {
           setError(error);
         } else {
-          setMode("professional");
           setLoading(false);
+          moveNextStep();
         }
       });
     } else {
@@ -222,36 +208,6 @@ const BuildingPermitProject = ({
   const clearStatus = () => {
     setError(null);
     setLoading(false);
-  }
-
-  const backToOccupancy = () => {
-    setMode("select-occupancytype");
-    setOccupancyMode("type");
-  }
-
-  const onSelectProfessional = (professionals) => {
-    if (professionals.length === 0) {
-      setProfessional({});
-      return;
-    }
-
-    const professional = professionals[0];
-    appService.update({appid: appno, contractorid: professional.objid}, (err, app) => {
-      if (err) {
-        setError(err);
-      } else {
-        setError(null);
-        setProfessional(professional);
-      }
-    });
-  }
-
-  const submitProfessional = () => {
-    if (!professional) {
-      setError("Please select a professional.")
-    } else {
-      moveNextStep();
-    }
   }
 
   return (
@@ -299,28 +255,6 @@ const BuildingPermitProject = ({
           <Button caption="Next" action={submitWorkType} />
         </ActionBar>
       </FormPanel>
-
-      <Panel visibleWhen={mode === "professional"}>
-        <label>Specify full time inspector and supervisor of construction work</label>
-        <Spacer height={10} />
-        {professional && professional.lastname &&
-          <Panel>
-            <ProfessionalCard
-              caption="Inspector/Supervisor"
-              professional={professional}
-              onSelectProfessional={onSelectProfessional}
-            />
-          </Panel>
-        }
-        {(!professional || !professional.lastname) &&
-          <ProfessionalLookup caption="Search Professional" onSelect={onSelectProfessional} fullWidth={false} />
-        }
-        <ActionBar>
-          <BackLink action={() => setMode("select-worktype")} />
-          <Button caption="Next" action={submitProfessional} />
-        </ActionBar>
-      </Panel>
-
     </Panel>
   )
 }

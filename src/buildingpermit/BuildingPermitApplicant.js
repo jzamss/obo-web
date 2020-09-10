@@ -77,36 +77,34 @@ const BuildingPermitApplicant = (props) => {
       <Spacer />
       <Error msg={error} />
       <FormPanel context={applicant} handler={setApplicant} >
-        <Combobox items={entityTypes} name='entitytype' caption='Type of Applicant' editable={editmode !== "read"}/>
-        <Text caption='Applicant Name' name='name' visibleWhen={applicant.entitytype !== 'INDIVIDUAL'} editable={editmode !== "read"}/>
+        <Combobox items={entityTypes} name='entitytype' caption='Type of Applicant'/>
+        <Text caption='Applicant Name' name='name' visibleWhen={applicant.entitytype !== 'INDIVIDUAL'}/>
 
         <Spacer />
         <Panel visibleWhen={applicant.entitytype === 'INDIVIDUAL'}>
           <Subtitle2>Administrator or contact name of applicant</Subtitle2>
-          <Text caption='Last Name' name='lastname' required={true} editable={editmode !== "read"}/>
-          <Text caption='First Name' name='firstname' required={true} editable={editmode !== "read"}/>
-          <Text caption='Middle Name' name='middlename' required={true} editable={editmode !== "read"}/>
-          <Email name='email' editable={editmode !== "read"}/>
-          <Mobileno name='mobileno' editable={editmode !== "read"}/>
+          <Text caption='Last Name' name='lastname' required={true}/>
+          <Text caption='First Name' name='firstname' required={true}/>
+          <Text caption='Middle Name' name='middlename' required={true}/>
+          <Email name='email'/>
+          <Mobileno name='mobileno'/>
         </Panel>
 
         <Spacer />
         <Subtitle2>Applicant Address</Subtitle2>
-        <Checkbox caption='Resident' name='resident' onChange={residentHandler} editable={editmode !== "read"}/>
+        <Checkbox caption='Resident' name='resident' onChange={residentHandler}/>
         {applicant.resident ?
-          <LocalAddress orgcode={partner.id} name='address' caption='Address' editable={editmode !== "read"} />
+          <LocalAddress orgcode={partner.id} name='address' caption='Address' />
           :
-          <NonLocalAddress name='address' caption='Address' editable={editmode !== "read"}  />
+          <NonLocalAddress name='address' caption='Address'  />
         }
         <Spacer />
         <Subtitle2>Proof of Identity</Subtitle2>
-        <IdEntry name="id" editable={editmode !== "read"} />
+        <IdEntry name="id" />
       </FormPanel>
 
-      <ActionBar visibleWhen={!stepCompleted}>
-        <Button caption='Edit' action={() => setEditmode('edit')} visibleWhen={editmode == 'read'} />
-        <Button caption='Save' action={saveApplicant} visibleWhen={editmode !== 'read'} />
-        <Button caption='Next' action={moveNextStep} visibleWhen={editmode === 'read'} />
+      <ActionBar>
+        <Button caption='Next' action={saveApplicant}  />
       </ActionBar>
     </Panel>
   )

@@ -30,6 +30,10 @@ const InfoComponent = ({
   name,
 }) => {
   const HandlerComponent = components[dataType];
+  let label = caption.toLowerCase();
+  if (dataType !== "boolean") {
+    label += " (" + unit.toLowerCase() + ")";
+  }
 
   return (
     <Panel>
@@ -37,7 +41,7 @@ const InfoComponent = ({
         <Label style={styles.category}>{category}</Label>
       }
       <div style={styles.infoContainer}>
-        <label>{`${caption.toLowerCase()} (${unit.toLowerCase()})`}</label>
+        <label>{label}</label>
         <HandlerComponent
           name={name}
           fullWidth={false}

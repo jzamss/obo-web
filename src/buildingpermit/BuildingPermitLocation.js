@@ -9,14 +9,9 @@ import {
   Spacer,
   Error,
   Text,
-  Table,
-  TableColumn,
   Service,
   Label,
   FormPanel,
-  DeleteButton,
-  EditButton,
-  ViewButton
 } from 'rsi-react-web-components';
 
 import { BarangayList, useBarangayList } from "rsi-react-filipizen-components";
@@ -208,18 +203,16 @@ const BuildingPermitLocation = (props) => {
       <Panel visibleWhen={mode === "view-lot"}>
         <Subtitle>Project Location</Subtitle>
         <p>Please check carefully if the information is correct. If not, please contact the Assessor's Office before proceeding.</p>
-        {/*
-          <Label>
-            <a href="mailto:assessor@filipizen.com?subject=Building Application Inquiry No: #{appid}&body=Please state your concern: ">[Click Here to Send Message] </a>
-          </Label>
+        <Label>
+          <a href="mailto:assessor@filipizen.com?subject=Building Application Inquiry No: #{appid}&body=Please state your concern: ">[Click Here to Send Message] </a>
+        </Label>
 
-          {(property && property.appno)  &&
-            <Label style={styles.balanceText}>
-              Note: There is still an unpaid balance of <u>Php #{property.bill.amtdue}</u>.
-              You can settle this by paying online <a  href="/partners/${partner.name}/services/rptis/billing#viewbill?refno=#{refno}" target="0"><u>here</u></a>
-            </Label>
-          }
-        */}
+        {(property && property.appno)  &&
+          <Label style={styles.balanceText}>
+            Note: There is still an unpaid balance of <u>Php #{property.bill.amtdue}</u>.
+            You can settle this by paying online <a  href="/partners/${partner.name}/services/rptis/billing#viewbill?refno=#{refno}" target="0"><u>here</u></a>
+          </Label>
+        }
 
         <FormPanel context={property} handler={setProperty}>
           <LotInformation editable={false} />

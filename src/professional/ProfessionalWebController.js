@@ -38,6 +38,8 @@ const ProfessionalWebController = (props) => {
 
   const { partner, service, history } = props;
 
+  console.log("PARTNER", partner)
+
   const handleError = (err) => {
     setLoading(false);
     setError(err.toString());
@@ -62,8 +64,8 @@ const ProfessionalWebController = (props) => {
   const getReconciledProfessional = () => {
     const address = {...professional.entity.address};
     if (professional.entity.resident) {
-      address.citymunicipality = partner.citymunicipality || "MUNICIPALITY";
-      address.province = partner.province || "PROVINCE";
+      address.citymunicipality = partner.title;
+      address.province = partner.group.title;
     }
     const entity = {...professional.entity, address};
     const prof = {...entity, ...professional};

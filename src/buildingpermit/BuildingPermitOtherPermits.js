@@ -154,7 +154,7 @@ const BuildingPermitOtherPermits = ({
         }
       });
     } else {
-      setError("Please check at least one work type.")
+      setMode("professional");
     }
   }
 
@@ -228,6 +228,13 @@ const BuildingPermitOtherPermits = ({
     }
   }
 
+  let hasIncompletePermit = false;
+  if (ancillaryPermits.length > 0) {
+    const idx = ancillaryPermits.findIndex(permit => !permit.designprofessionalid);
+    console.log("idx", idx)
+    hasIncompletePermit =  idx >= 0;
+  }
+
   let prevInfo = null;
 
   return (
@@ -249,7 +256,7 @@ const BuildingPermitOtherPermits = ({
               : (
                 <div style={{width: 40}}/>
               )}
-              <Label caption={permit.type.title} />
+              <label>{permit.type.title}</label>
             </Panel>
             <Panel row>
               <EditButton action={() => editPermit(permit)} size="small" />
@@ -259,7 +266,7 @@ const BuildingPermitOtherPermits = ({
         ))}
         <ActionBar>
           <BackLink caption="Add New Permits" action={() => setMode("available-list")} />
-          <Button caption="Next" action={submitAncillaryPermits} />
+          <Button caption="Next" action={submitAncillaryPermits} disableWhen={hasIncompletePermit} />
         </ActionBar>
       </Panel>
 
