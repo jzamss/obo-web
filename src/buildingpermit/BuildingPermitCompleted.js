@@ -13,6 +13,7 @@ import {
   CloudDownloadIcon,
   LinkIcon,
   Subtitle2,
+  ReportViewer,
 } from "rsi-react-web-components";
 
 
@@ -27,6 +28,7 @@ const BuildingPermitCompleted = ({
   const [loading, setLoading] = useState(false);
   const [app, setApp] = useState({});
   const [ancillaryPermits, setAncillaryPermits] = useState([]);
+  const [showPreview, setShowPreview] = useState(false);
 
 
   const resetStatus = () => {
@@ -83,10 +85,30 @@ const BuildingPermitCompleted = ({
     contractor += ` PRC NO.: ${app.contractor.prc.idno} Issued: ${app.contractor.prc.dtissued}`;
   }
 
+  const onCloseViewer = () => {
+    setShowPreview(false);
+  }
+
+  let items = [];
+  ancillaryPermits.forEach(permit => {
+    items.push({
+      title: permit.permittypeid.toUpperCase(),
+      icon: '',
+      href: `/jreports/obo/${permit.permittypeid}permit?refid=${permit.objid}`,
+    })
+  })
+
   return (
     <Panel>
       <Spacer />
       <Error msg={error} />
+      <ReportViewer
+        title="Building Permit Application"
+        items={items}
+        open={showPreview}
+        style={{}}
+        onClose={onCloseViewer}
+      />
       <FormPanel context={app} handler={setApp}>
         <label>
         Please download and print the Building and Ancillary Permit forms, prepare the

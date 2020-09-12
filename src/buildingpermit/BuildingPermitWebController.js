@@ -34,7 +34,7 @@ const pages = [
   { step: 6, name: 'accessories', caption: 'Accessories', component: BuildingPermitAccessories },
   { step: 7, name: 'ancillarylist', caption: 'Other Permits', component: BuildingPermitOtherPermits },
   { step: 8, name: 'confirm', caption: 'Confirm', component: BuildingPermitConfirm },
-  { step: 9, name: 'completed', caption: 'Completed', component: BuildingPermitCompleted }
+  { step: 9, name: 'completed', caption: 'Completed', component: BuildingPermitCompleted },
   // { step: 9, name: 'finish', caption: 'Finish', component: BuildingPermitFinish },
 ]
 

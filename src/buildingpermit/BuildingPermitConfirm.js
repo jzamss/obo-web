@@ -17,6 +17,7 @@ import {
   Subtitle2,
   PageviewIcon,
   CloudDownloadIcon,
+  ReportViewer
 } from 'rsi-react-web-components'
 
 const BuildingPermitConfirm = ({
@@ -32,6 +33,7 @@ const BuildingPermitConfirm = ({
   const [loading, setLoading] = useState(false);
   const [app, setApp] = useState({});
   const [ancillaryPermits, setAncillaryPermits] = useState([]);
+  const [showPreview, setShowPreview] = useState(false);
 
   const resetStatus = () => {
     setError(null);
@@ -104,10 +106,33 @@ const BuildingPermitConfirm = ({
     moveNextStep();
   }
 
+  const onCloseViewer = () => {
+    setShowPreview(false);
+  }
+
+  let items = [];
+  ancillaryPermits.forEach(permit => {
+    items.push({
+      title: permit.permittypeid.toUpperCase(),
+      Icon: PageviewIcon,
+      href: `/jreports/obo/${permit.permittypeid}permit?refid=${permit.objid}`,
+      // href: `/jreports/obo/electricalpermit?refid=OBOBPANC25cf462e:174704f4c30:-7fcf`,
+    })
+  })
+
   return (
     <Panel>
       <Subtitle>Confirm Application</Subtitle>
       <Spacer />
+
+      <ReportViewer
+        title="Building Permit Application"
+        items={items}
+        open={showPreview}
+        style={{}}
+        onClose={onCloseViewer}
+      />
+
       <MsgBox
         open={confirm}
         type="confirm"
@@ -119,7 +144,22 @@ const BuildingPermitConfirm = ({
       <Loading visibleWhen={loading} />
       <p>Please confirm the info and preview each permit application before submitting</p>
       <FormPanel visibleWhen={!loading} context={app} handler={setApp}>
-        <Panel>
+        <Panel style={styles.container}>
+          <Panel style={styles.linkContainer}>
+          {/**
+            <Button caption="Preview Reports" action={() => setShowPreview(true)} />
+           */}
+            <ButtonLink
+              caption="Preview"
+              href={`/jreports/obo/bldgpermit?refid=${appno}`}
+              Icon={PageviewIcon}
+            />
+            <ButtonLink
+              caption="Download"
+              href={`/jreports/download/obo/bldgpermit?refid=${appno}`}
+              Icon={CloudDownloadIcon}
+            />
+          </Panel>
           <Panel>
             <Text caption="Tracking No." name="objid" readOnly={true} />
             <Text caption="Project Title" name="title" readOnly={true} />
@@ -179,6 +219,20 @@ const BuildingPermitConfirm = ({
 }
 
 const styles = {
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    justifyConent: "flex-start",
+    border: "1px solid #aaa",
+    padding: 20,
+    borderRadius: 3,
+  },
+  linkContainer: {
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    width: "100%",
+  },
   ancillaryContainer: {
     marginRight: 15,
     marginBottom: 20,

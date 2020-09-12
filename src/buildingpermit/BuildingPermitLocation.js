@@ -20,7 +20,7 @@ import OwnershipInfo from "../components/OwnershipInfo";
 import LotInformation from "../components/LotInformation";
 
 const BuildingPermitLocation = (props) => {
-  const { partner, appService, moveNextStep } = props;
+  const { partner, appno, appService, moveNextStep } = props;
   const barangays = useBarangayList(partner.id);
 
   const [error, setError] = useState();
@@ -131,7 +131,7 @@ const BuildingPermitLocation = (props) => {
 
   const updateLocation = () => {
     setError(null);
-    appService.saveLocation(location, (err, app) => {
+    appService.saveLocation({appid: appno, ...location}, (err, app) => {
       if (err) {
         setError(err);
       } else {
