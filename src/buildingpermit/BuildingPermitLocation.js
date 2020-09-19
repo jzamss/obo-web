@@ -90,12 +90,14 @@ const BuildingPermitLocation = (props) => {
   }
 
   const editOwnerInfo = props => {
-    if(property.bill !== null && property.bill.amtdue != null &&  property.bill.amtdue > 0 ) {
-      setError("Please settle all unpaid balances first before proceeding");
-    } else {
-      setError(null);
-      setMode("edit-owner-info");
-    }
+    setMode("edit-owner-info");
+    //TODO: activate validation below
+    // if(property.bill !== null && property.bill.amtdue != null &&  property.bill.amtdue > 0 ) {
+    //   setError("Please settle all unpaid balances first before proceeding");
+    // } else {
+    //   setError(null);
+    //   setMode("edit-owner-info");
+    // }
   }
 
   const saveRpu = () => {
@@ -203,16 +205,19 @@ const BuildingPermitLocation = (props) => {
       <Panel visibleWhen={mode === "view-lot"}>
         <Subtitle>Project Location</Subtitle>
         <p>Please check carefully if the information is correct. If not, please contact the Assessor's Office before proceeding.</p>
+        {/** TODO:
+
         <Label>
           <a href="mailto:assessor@filipizen.com?subject=Building Application Inquiry No: #{appid}&body=Please state your concern: ">[Click Here to Send Message] </a>
         </Label>
 
-        {(property && property.appno)  &&
-          <Label style={styles.balanceText}>
-            Note: There is still an unpaid balance of <u>Php #{property.bill.amtdue}</u>.
-            You can settle this by paying online <a  href="/partners/${partner.name}/services/rptis/billing#viewbill?refno=#{refno}" target="0"><u>here</u></a>
-          </Label>
-        }
+            {(property && property.appno)  &&
+              <Label style={styles.balanceText}>
+                Note: There is still an unpaid balance of <u>Php #{property.bill.amtdue}</u>.
+                You can settle this by paying online <a  href="/partners/${partner.name}/services/rptis/billing#viewbill?refno=#{refno}" target="0"><u>here</u></a>
+              </Label>
+            }
+           */}
 
         <FormPanel context={property} handler={setProperty}>
           <LotInformation editable={false} />
