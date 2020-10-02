@@ -32,22 +32,22 @@ const steps = [
 ]
 
 const BuildingPermitInitial = (props) => {
-  const [contact, setContact] = useState({})
+  //TODO: remove test contact
+  // const [contact, setContact] = useState({
+  const [contact, setContact] = useState({
+    name: "JUAN DELA CRUZ", email: "juan@gmail.com"
+  })
   const [agreeDisclaimer, setAgreeDisclaimer] = useState(false)
   const [appType, setAppType] = useState("new")
   const [projectName, setProjectName] = useState()
   const [appno, setAppno] = useState()
   const [app, setApp] = useState({apptype: "NEW"})
-  const [activeStep, setActiveStep] = useState(0);
+  //TODO: reset step to 0
+  const [activeStep, setActiveStep] = useState(1);
   const [error, setError] = useState();
 
   const { partner, service, handler, history, onCancel } = props
   const step = steps[activeStep];
-
-  // useEffect(() => {
-  //   const hash = steps[activeStep].name;
-  //   // props.history.push({hash});
-  // }, [activeStep])
 
   const moveNextStep = () => {
     setActiveStep(cs => cs + 1);
@@ -89,7 +89,7 @@ const BuildingPermitInitial = (props) => {
     <Page>
       <Card>
         <Title>{service.title}</Title>
-        <EmailVerification visibleWhen={step.name === "email"} showName={true} onCancel={onCancel} onVerify={onVerifyEmail}  />
+        <EmailVerification visibleWhen={step.name === "email"} showName={true} onCancel={onCancel} onVerify={onVerifyEmail}  partner={partner} />
 
         <FormPanel visibleWhen={step.name === "select-apptype"} context={app} handler={setApp} >
           <Subtitle>Select Application Type</Subtitle>

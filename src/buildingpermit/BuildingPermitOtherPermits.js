@@ -139,23 +139,20 @@ const BuildingPermitOtherPermits = ({
 
   const submitWorkType = () => {
     setError(null);
-    if (validWorkTypes()) {
-      setError(null);
-      const updatedWorkTypes = {
-        objid: ancillaryPermit.objid,
-        worktypes: ancillaryPermit.worktypes.filter(wt => wt.checked).map(wt => wt.name)
-      };
-      appService.updateAncillaryPermit(updatedWorkTypes, (err, proj) => {
-        if (err) {
-          setError(error);
-        } else {
-          setMode("infos");
-          setLoading(false);
-        }
-      });
-    } else {
-      setMode("professional");
-    }
+    setError(null);
+    const updatedWorkTypes = {
+      objid: ancillaryPermit.objid,
+      worktypes: ancillaryPermit.worktypes.filter(wt => wt.checked).map(wt => wt.name)
+    };
+    appService.updateAncillaryPermit(updatedWorkTypes, (err, proj) => {
+      if (err) {
+        setError(error);
+      } else {
+        setMode("infos");
+        setLoading(false);
+      }
+    });
+
   }
 
   const onSelectDesignProfessional = (professionals) => {
